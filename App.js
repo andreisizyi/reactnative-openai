@@ -89,7 +89,7 @@ export default function App() {
       axios.post('https://api.openai.com/v1/chat/completions', data, {
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': 'Bearer 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'
+          'Authorization': 'Bearer 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'
         },
         responseType: 'text',
         onDownloadProgress: throttledOnDownloadProgress,
