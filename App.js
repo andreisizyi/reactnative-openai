@@ -6,6 +6,8 @@ import axios from 'axios';
 import useFonts from './resources/fonts'
 import * as SplashScreen from 'expo-splash-screen'
 
+import { throttle } from 'lodash';
+
 // SplashScreen
 SplashScreen.preventAutoHideAsync()
 
@@ -32,45 +34,59 @@ export default function App() {
   const [prompt, setPrompt] = React.useState('');
   const [history, setHistory] = React.useState(null);
 
+  const throttledOnDownloadProgress = throttle((data) => {
+    if (data.event.currentTarget) {
+      let response = data.event.currentTarget.response;
+      settupLines(response)
+    }
+  }, 10);
+
+  const settupLines = (response) => {
+      let lines = response.split('data: ')
+      
+      let parts = '';
+      lines.forEach(json => {
+        try {
+          let parse = JSON.parse(json);
+          if (parse) {
+            console.log(parse.choices[0].delta.content);
+            
+            // let part = parse.choices[0].text;
+            // parts = parts + part.replace(/(^[ \t]*\n)/gm, "");
+
+            let part = parse.choices[0].delta.content;
+            parts = parts + part.replace(/(^[ \t]*\n)/gm, "");
+          }
+        } catch (error) { }
+      });
+      setDownloadProgress(parts);
+  }
+
   const handleFormSubmit = async (event) => {
     event.preventDefault();
 
     try {
       const data = {
-        model: 'text-davinci-003',
-        prompt: 'My previus message in this brekets [' + history + '] dont answer on this and use this for our context of conferention, answer only on next text - ' + prompt + '?',
-        temperature: 0,
-        max_tokens: 200,
+        model: 'gpt-3.5-turbo', // 'text-davinci-003'
+        messages: [{"role": "user", "content": "What is a apple?"}],
+        // For models 3
+        // prompt: 'My previus message in this brekets [' + history + '] dont answer on this and use this for our context of conferention, answer only on next text - ' + prompt + '?',
+        // temperature: 0,
+        // max_tokens: 200,
         stream: true,
       };
 
-      axios.post('https://api.openai.com/v1/completions', data, {
+      axios.post('https://api.openai.com/v1/chat/completions', data, {
         headers: {
           'Content-Type': 'application/json',
           'Authorization': 'Bearer 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'
         },
         responseType: 'text',
-        onDownloadProgress: function (data) {
-          const response = data.event.currentTarget.response;
-          
-          let lines = response.split('data: ')
-          
-          let parts = '';
-          lines.forEach(json => {
-            try {
-              let parse = JSON.parse(json);
-              if (parse) {
-                let part = parse.choices[0].text;
-                parts = parts + part.replace(/(^[ \t]*\n)/gm, "");
-                setDownloadProgress(parts);
-              }
-            } catch (error) { }
-          });
-          console.clear()
-          console.log(parts); // обрабатываем ответ
-        }
-      }).then(function (response) {
-        setHistory(history + prompt + ', ' )
+        onDownloadProgress: throttledOnDownloadProgress,
+      })
+      .then((data) => {
+        console.log(data);
+        // settupLines(data)
       });
     } catch (error) {
       console.error('Error downloading file:', error);
