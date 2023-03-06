@@ -32,47 +32,57 @@ export default function App() {
 
   const [downloadProgress, setDownloadProgress] = React.useState(null);
   const [prompt, setPrompt] = React.useState('');
-  const [history, setHistory] = React.useState(null);
+  const [history, setHistory] = React.useState([]);
+
+  const promptObject = React.useMemo(
+    () => [...history, {"role": "user", "content": prompt}]
+    , [prompt, history]
+  )
 
   const throttledOnDownloadProgress = throttle((data) => {
     if (data.event.currentTarget) {
       let response = data.event.currentTarget.response;
       settupLines(response)
     }
-  }, 10);
+  }, 30);
 
   const settupLines = (response) => {
       let lines = response.split('data: ')
-      
       let parts = '';
       lines.forEach(json => {
         try {
           let parse = JSON.parse(json);
           if (parse) {
-            console.log(parse.choices[0].delta.content);
-            
+            // console.log(parse.choices[0].delta.content);
             // let part = parse.choices[0].text;
             // parts = parts + part.replace(/(^[ \t]*\n)/gm, "");
-
             let part = parse.choices[0].delta.content;
-            parts = parts + part.replace(/(^[ \t]*\n)/gm, "");
+            parts = parts + part.replace(/^\n{2}/, '');
           }
         } catch (error) { }
       });
       setDownloadProgress(parts);
   }
 
+  const [isRequesting, setIsRequesting] = React.useState(false);
+
   const handleFormSubmit = async (event) => {
     event.preventDefault();
+
+    if (isRequesting) {
+      return
+    }
+
+    setIsRequesting(true)
 
     try {
       const data = {
         model: 'gpt-3.5-turbo', // 'text-davinci-003'
-        messages: [{"role": "user", "content": "What is a apple?"}],
+        messages: promptObject,
         // For models 3
         // prompt: 'My previus message in this brekets [' + history + '] dont answer on this and use this for our context of conferention, answer only on next text - ' + prompt + '?',
         // temperature: 0,
-        // max_tokens: 200,
+        // max_tokens: 2000,
         stream: true,
       };
 
@@ -84,9 +94,9 @@ export default function App() {
         responseType: 'text',
         onDownloadProgress: throttledOnDownloadProgress,
       })
-      .then((data) => {
-        console.log(data);
-        // settupLines(data)
+      .then(() => {
+        setHistory([...history, {"role": "user", "content": prompt}])
+        setIsRequesting(false)
       });
     } catch (error) {
       console.error('Error downloading file:', error);
@@ -122,13 +132,20 @@ export default function App() {
 
         
         <View className="text-md pt-[20px] pb-[10px]">
-            <Text className="text-teal-300 opacity-30 px-5 pb-5 rounded-sm">
-              History: { history }
-            </Text>
+            <View className="flex flex-row flex-wrap px-5">
+              <Text className="text-teal-500 pr-2">
+                History:
+              </Text>
+              {history.map((item, index) => (
+                <Text className="w-auto text-teal-300 opacity-30 pr-2" key={index}>
+                  [ {item.content} ],
+                </Text>
+              ))}
+            </View>
             <Text
-              onPress={() => setHistory(null)}
-              className="px-5 pb-5 text-teal-500 font-medium border-teal-500 border-b-[1px]">
-                Clear
+              onPress={() => setHistory([])}
+              className="px-5 pt-5 pb-5 text-teal-500 font-medium border-teal-500 border-b-[1px]">
+                Reset History [X]
             </Text>
             <Text className="text-white px-5 py-8">
               {downloadProgress}
