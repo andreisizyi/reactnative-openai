@@ -104,9 +104,15 @@ export default function App() {
           </Pressable>
         </View>
 
+        
         <View className="text-md pt-[20px] pb-[10px]">
-            <Text className="text-teal-500 px-5 pb-5 border-teal-500 rounded-sm border-b-[1px]">
+            <Text className="text-teal-300 opacity-30 px-5 pb-5 rounded-sm">
               History: { history }
+            </Text>
+            <Text
+              onPress={() => setHistory(null)}
+              className="px-5 pb-5 text-teal-500 font-medium border-teal-500 border-b-[1px]">
+                Clear
             </Text>
             <Text className="text-white px-5 py-8">
               {downloadProgress}
