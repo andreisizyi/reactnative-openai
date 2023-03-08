@@ -122,22 +122,21 @@ export default function App() {
   
   return (
     <View className="bg-gray-800 min-h-[100vh] w-full">
+      <View className="bg-gray-800 pt-8 px-5 pb-3 max-h-[100at ispx] flex flex-row flex-nowrap items-center border-slate-700 border-b-[0px]">
+        <Pressable onPress={() => setHistory([])} className="flex flex-row justify-center items-center pr-2">
+          <Ionicons name="close-sharp" size={22} color="rgb(190 18 60)" />
+          <Text className="text-rose-500">Clear messaging history</Text>
+        </Pressable>
+      </View>
+
       <ScrollView className="flex-1">
         <View className="pb-3 w-full">
           {/* { history.length > 0 && */}
-            <View className="text-md pt-[20px] pb-[10px] px-3">
-                <View className="max-h-[100at ispx] px-5 pt-5 pb-5 flex flex-row flex-nowrap items-center border-teal-500 border-b-[1px]">
-                  
-                  <Pressable onPress={() => setHistory([])} className="pr-2">
-                    <Text>Clean messaging history</Text>
-                    <Ionicons name="close-sharp" size={24} color="#0d9488" />
-                  </Pressable>
-
-                </View>
+            <View className="pb-5 px-5">
 
                 {history.map((item, index) => (
                   item.content.length > 1 &&
-                    <Text className={'rounded mt-5 px-5 py-2 text-white ' + (item.role === 'system' ? 'ml-3 bg-white/10' : 'mr-3 bg-teal-500/70') } key={index}>
+                    <Text selectable={true} className={'w-full w-[95%] rounded my-2 px-3 py-2 text-white ' + (item.role === 'system' ? 'ml-3 bg-white/10' : 'mr-3 bg-teal-500/70') } key={index}>
                         { item.content }
                     </Text>
                 ))}
