@@ -1,15 +1,23 @@
 import React from 'react';
-import { Text, View, TextInput, Pressable, ScrollView } from 'react-native';
+import { KeyboardAvoidingView, StyleSheet, Text, View, TextInput, Pressable, ScrollView } from 'react-native';
 import axios from 'axios';
+import RenderHtml from 'react-native-render-html';
 
 // Fonts
 import useFonts from './resources/fonts'
 import * as SplashScreen from 'expo-splash-screen'
+import Ionicons from '@expo/vector-icons/Ionicons';
 
 import { throttle } from 'lodash';
 
 // SplashScreen
 SplashScreen.preventAutoHideAsync()
+
+const styles = StyleSheet.create({ 
+   title: {
+     color: "#ffffff",
+   }
+ })
 
 export default function App() {
 
@@ -68,12 +76,13 @@ export default function App() {
 
   const handleFormSubmit = async (event) => {
     event.preventDefault();
-
+    
     if (isRequesting) {
       return
     }
 
     setIsRequesting(true)
+    setHistory([...history, {"role": "user", "content": prompt}])
 
     try {
       const data = {
@@ -86,7 +95,7 @@ export default function App() {
         stream: true,
       };
 
-      axios.post('https://api.openai.com/v1/chat/completions', data, {
+      await axios.post('https://api.openai.com/v1/chat/completions', data, {
         headers: {
           'Content-Type': 'application/json',
           'Authorization': 'Bearer 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'
@@ -95,7 +104,8 @@ export default function App() {
         onDownloadProgress: throttledOnDownloadProgress,
       })
       .then(() => {
-        setHistory([...history, {"role": "user", "content": prompt}])
+        // Nee set comment at live downloadProgress
+        setPrompt('')
         setIsRequesting(false)
       });
     } catch (error) {
@@ -103,56 +113,81 @@ export default function App() {
     }
   };
 
+  React.useEffect(() => {
+    if (!isRequesting && downloadProgress) {
+      setHistory([...history, {"role": "system", "content": (downloadProgress ? downloadProgress.toString() : '' ) }])
+      setDownloadProgress()
+    }
+  }, [isRequesting]);
+  
   return (
-    <ScrollView className="flex-1">
-      <View className="bg-gray-800 min-h-[100vh] w-full">
-        
-        <View className="px-5 py-8 bg-white">
-          <View className="text-xl pt-[50px] pb-[10px]">
-            <View className="w-full border-slate-300 rounded-sm border-b-[1px]">
-              <TextInput
-                className="w-full py-[20px] px-[0] text-slate-800 text-xl"
-                onChangeText={text => setPrompt(text)}
-                value={prompt}
-                placeholder="Your request"
-                multiline={true}
-              />
+    <View className="bg-gray-800 min-h-[100vh] w-full">
+      <ScrollView className="flex-1">
+        <View className="pb-3 w-full">
+          {/* { history.length > 0 && */}
+            <View className="text-md pt-[20px] pb-[10px] px-3">
+                <View className="max-h-[100at ispx] px-5 pt-5 pb-5 flex flex-row flex-nowrap items-center border-teal-500 border-b-[1px]">
+                  
+                  <Pressable onPress={() => setHistory([])} className="pr-2">
+                    <Text>Clean messaging history</Text>
+                    <Ionicons name="close-sharp" size={24} color="#0d9488" />
+                  </Pressable>
+
+                </View>
+
+                {history.map((item, index) => (
+                  item.content.length > 1 &&
+                    <Text className={'rounded mt-5 px-5 py-2 text-white ' + (item.role === 'system' ? 'ml-3 bg-white/10' : 'mr-3 bg-teal-500/70') } key={index}>
+                        { item.content }
+                    </Text>
+                ))}
+
+                {/* <View className="px-5 py-8">
+                  <RenderHtml
+                    style={styles.title}
+                    contentWidth={100}
+                    source={{
+                      html: '<div style="color: white">'+downloadProgress.replace(/</g, '&lt;').replace(/`{3}([\s\S]*?)`{3}/g, '<pre style="color: #0d9488">$1</pre>').replace(/`{3}([\s\S]*?)`{3}/g, '<pre style="color: #0d9488">$1</pre>')+'</div>'
+                    }}
+                    defaultTextProps={{selectable:true}}
+                  />
+                </View> */}
             </View>
-          </View>
-
-          <Pressable
-              className="active:opacity-50 mt-7 px-5 py-3 bg-teal-600 border-blue-600 rounded-lg w-full"
-              onPress={handleFormSubmit}>
-              <Text
-                  className="text-center text-white text-xl font-medium">
-                    Send
-              </Text>
-          </Pressable>
-        </View>
-
-        
-        <View className="text-md pt-[20px] pb-[10px]">
-            <View className="flex flex-row flex-wrap px-5">
-              <Text className="text-teal-500 pr-2">
-                History:
-              </Text>
-              {history.map((item, index) => (
-                <Text className="w-auto text-teal-300 opacity-30 pr-2" key={index}>
-                  [ {item.content} ],
-                </Text>
-              ))}
-            </View>
-            <Text
-              onPress={() => setHistory([])}
-              className="px-5 pt-5 pb-5 text-teal-500 font-medium border-teal-500 border-b-[1px]">
-                Reset History [X]
+          {/* } */}
+          { !history.length > 0 &&
+            <Text className="text-md py-12 px-5 text-white opacity-30 pr-2">
+              Send message to start conversation
             </Text>
-            <Text className="text-white px-5 py-8">
-              {downloadProgress}
-            </Text>
+          }
         </View>
+      </ScrollView>
 
-      </View>
-    </ScrollView>
+      <KeyboardAvoidingView
+        behavior="padding"
+        className="flex flex-row w-full bottom-0 pl-5 bg-white">
+        <View className="w-full border-slate-300 rounded-sm w-[85%]">
+          { !isRequesting ?
+          <TextInput
+            className="w-full py-[15px] pl-[0] pr-10 text-slate-800 text-xl"
+            onChangeText={text => setPrompt(text)}
+            value={prompt}
+            placeholder="Your request"
+            multiline={false}
+          />
+          : 
+            <Text className="w-full py-[15px] pl-[0] pr-10 text-slate-800 text-xl">
+              Loading ...
+            </Text>
+          }
+        </View>
+        <Pressable
+            className="flex justify-center items-center pl-1 bg-teal-500 active:opacity-50 w-[15%] h-100"
+            onPress={handleFormSubmit}>
+            <Ionicons name="md-send-sharp" size={25} color="white" />
+        </Pressable>
+      </KeyboardAvoidingView>
+      
+    </View>
+    
   );
 }
