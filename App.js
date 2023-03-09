@@ -121,25 +121,30 @@ export default function App() {
   }, [isRequesting]);
   
   return (
-    <View className="bg-gray-800 min-h-[100vh] w-full">
-      <View className="bg-gray-800 pt-8 px-5 pb-3 max-h-[100at ispx] flex flex-row flex-nowrap items-center border-slate-700 border-b-[0px]">
-        <Pressable onPress={() => setHistory([])} className="flex flex-row justify-center items-center pr-2">
-          <Ionicons name="close-sharp" size={22} color="rgb(190 18 60)" />
-          <Text className="text-rose-500">Clear messaging history</Text>
+    <View className="bg-slate-800 min-h-[100vh] w-full">
+      <View className="bg-slate-900 pt-8 px-3 pb-3 max-h-[100at ispx] flex flex-row flex-nowrap justify-between items-center border-slate-700 border-b-[0px]">
+        <Text className="text-xl font-bold text-white uppercase ml-2">BOT</Text>
+        <Pressable onPress={() => setHistory([])} className="ml-2 flex flex-row justify-center items-center pr-2">
+          <View className="flex justify-center items-center bg-rose-500 rounded-full w-[20px] h-[20px]">
+            <Ionicons name="close-sharp" size={15} color="white" />
+          </View>
+          <Text className="ml-2 text-white uppercase">Clear history</Text>
+          <View className="ml-2 flex justify-center items-center rounded-full w-[20px] h-[20px]">
+            <Ionicons name="ellipsis-vertical" size={20} color="white" />
+          </View>
         </Pressable>
       </View>
 
       <ScrollView className="flex-1">
-        <View className="pb-3 w-full">
-          {/* { history.length > 0 && */}
-            <View className="pb-5 px-5">
+        
+            <View className="py-5 px-5">
 
-                {history.map((item, index) => (
+                { history.map((item, index) => (
                   item.content.length > 1 &&
-                    <Text selectable={true} className={'w-full w-[95%] rounded my-2 px-3 py-2 text-white ' + (item.role === 'system' ? 'ml-3 bg-white/10' : 'mr-3 bg-teal-500/70') } key={index}>
+                    <Text selectable={true} className={'w-[95%] rounded my-2 px-3 py-2 text-white ' + (item.role === 'system' ? 'ml-5 bg-white/10' : 'mr-5 bg-teal-500/70') } key={index}>
                         { item.content }
                     </Text>
-                ))}
+                )) }
 
                 {/* <View className="px-5 py-8">
                   <RenderHtml
@@ -151,39 +156,40 @@ export default function App() {
                     defaultTextProps={{selectable:true}}
                   />
                 </View> */}
+
+              { !history.length > 0 &&
+                <Text className="w-full w-[95%] rounded my-2 px-3 py-2 text-white bg-teal-500/70">
+                  Send message to start conversation
+                </Text>
+              }
+
             </View>
-          {/* } */}
-          { !history.length > 0 &&
-            <Text className="text-md py-12 px-5 text-white opacity-30 pr-2">
-              Send message to start conversation
-            </Text>
-          }
-        </View>
+      
       </ScrollView>
 
       <KeyboardAvoidingView
         behavior="padding"
-        className="flex flex-row w-full bottom-0 pl-5 bg-white">
-        <View className="w-full border-slate-300 rounded-sm w-[85%]">
-          { !isRequesting ?
-          <TextInput
-            className="w-full py-[15px] pl-[0] pr-10 text-slate-800 text-xl"
-            onChangeText={text => setPrompt(text)}
-            value={prompt}
-            placeholder="Your request"
-            multiline={false}
-          />
-          : 
-            <Text className="w-full py-[15px] pl-[0] pr-10 text-slate-800 text-xl">
+        className="w-full bg-slate-900">
+        <View className="flex flex-row justify-between items-center px-3 py-2">
+          { !isRequesting ? 
+            <TextInput
+              className="bg-slate-800 rounded-xl text-md text-white px-3 py-2 w-[85%] "
+              onChangeText={text => setPrompt(text)}
+              value={prompt}
+              placeholder="Write a message ..."
+              placeholderTextColor="rgb(107 114 128)"
+              multiline={false}
+            /> : 
+            <Text className="bg-slate-800 rounded-xl text-md text-gray-500 px-3 py-2 w-[85%]">
               Loading ...
             </Text>
           }
-        </View>
-        <Pressable
-            className="flex justify-center items-center pl-1 bg-teal-500 active:opacity-50 w-[15%] h-100"
+          <Pressable
+            className="flex justify-center items-center rounded-full bg-teal-500 active:opacity-50 pl-1 h-[38px] w-[38px]"
             onPress={handleFormSubmit}>
-            <Ionicons name="md-send-sharp" size={25} color="white" />
-        </Pressable>
+            <Ionicons name="ios-send" size={22} color="white" />
+          </Pressable>
+        </View>
       </KeyboardAvoidingView>
       
     </View>
