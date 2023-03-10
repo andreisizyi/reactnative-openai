@@ -38,6 +38,16 @@ export default function App() {
   // Onload methods
   preloading()
 
+  const scrollViewRef = React.useRef();
+
+  // Обработчик изменения размеров содержимого ScrollView
+  const handleContentSizeChange = (contentWidth, contentHeight) => {
+    const scrollViewHeight = scrollViewRef.current?.getHeight?.() || 0;
+    const contentBottomY = contentHeight - scrollViewHeight;
+    scrollViewRef.current?.scrollTo?.({ y: contentBottomY, animated: true });
+  };
+
+
   const [downloadProgress, setDownloadProgress] = React.useState(null);
   const [prompt, setPrompt] = React.useState('');
   const [history, setHistory] = React.useState([]);
@@ -123,7 +133,11 @@ export default function App() {
   return (
     <SafeAreaView className="bg-slate-800 flex-1 w-full">
       <StatusBar/>
-      <ScrollView>
+      <ScrollView 
+        ref={scrollViewRef}
+        onContentSizeChange={handleContentSizeChange}
+        // onLayout={handleContentSizeChange}
+        >
         <View className="bg-slate-800 pt-[85px] pb-[70px] px-5">
           { history.map((item, index) => (
             item.content.length > 1 &&
@@ -133,18 +147,27 @@ export default function App() {
                   >
                     { item.content }
                 </Text>
+                {/* <View className={'my-2 rounded-t-3xl px-4 py-3 text-white ' + (item.role === 'system' ? 'rounded-br-3xl bg-white/10' : 'rounded-bl-3xl bg-teal-500/70') } >
+                  <RenderHtml
+                    style={styles.title}
+                    contentWidth={100}
+                    source={{
+                      html: '<div style="color: white">'+item.content.replace(/</g, '&lt;').replace(/`{3}([\s\S]*?)`{3}/g, '<pre style="color: #0d9488">$1</pre>').replace(/`{3}([\s\S]*?)`{3}/g, '<pre style="color: #0d9488">$1</pre>')+'</div>'
+                    }}
+                    defaultTextProps={{selectable:true}}
+                  />
+                </View> */}
               </View>
           )) }
-          {/* <View className="px-5 py-8">
-            <RenderHtml
-              style={styles.title}
-              contentWidth={100}
-              source={{
-                html: '<div style="color: white">'+downloadProgress.replace(/</g, '&lt;').replace(/`{3}([\s\S]*?)`{3}/g, '<pre style="color: #0d9488">$1</pre>').replace(/`{3}([\s\S]*?)`{3}/g, '<pre style="color: #0d9488">$1</pre>')+'</div>'
-              }}
-              defaultTextProps={{selectable:true}}
-            />
-          </View> */}
+          { downloadProgress &&
+            <View className="flex flex-row justify-start">
+              <Text selectable={true}
+                className={'my-2 rounded-t-3xl px-4 py-3 text-white rounded-br-3xl bg-white/10'} 
+                >
+                  { downloadProgress }
+              </Text>
+            </View>
+          }
           { !history.length > 0 &&
             <Text className="py-3 text-slate-500">
               Send message to start conversation ...
