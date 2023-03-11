@@ -35,12 +35,6 @@ class App extends Component {
       isRequesting: false
     }
     this.scrollViewRef = React.createRef();
-    this.throttledOnDownloadProgress = throttle((data) => {
-      if (data.event.currentTarget) {
-        let response = data.event.currentTarget.response;
-        this.settupLines(response)
-      }
-    }, 30);
   }
 
   preloading = async () => {
@@ -72,6 +66,14 @@ class App extends Component {
     return promptObject;
   }
 
+  throttledOnDownloadProgress = throttle((data) => {
+    if (data.event.currentTarget) {
+      let response = data.event.currentTarget.response;
+      let parts =  this.settupLines(response);
+      this.setState({ downloadProgress: parts })
+    }
+  }, 30);
+
   settupLines = (response) => {
     let lines = response.split('data: ')
     let parts = '';
@@ -84,7 +86,8 @@ class App extends Component {
         }
       } catch (error) { }
     });
-    this.setState({ downloadProgress: parts })
+    
+    return parts;
   }
 
   handleFormSubmit = async (event) => {
@@ -101,18 +104,28 @@ class App extends Component {
         messages: promptObject,
         stream: true,
       };
-      await axios.post('https://api.openai.com/v1/chat/completions', data, {
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer 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'
-        },
-        responseType: 'text',
-        onDownloadProgress: this.throttledOnDownloadProgress,
-        signal
-      })
-        .then(() => {
-          this.setState({ prompt: '', isRequesting: false })
-        });
+      const response = await axios({
+          method: 'post',
+          url: 'https://api.openai.com/v1/chat/completions',
+          data: data,
+          transformResponse: this.settupLines,
+          headers: {
+                'Content-Type': 'application/json',
+                'Authorization': 'Bearer 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' },
+          responseType: 'json',
+          onDownloadProgress: this.throttledOnDownloadProgress,
+          signal
+        })
+
+        this.setState({ 
+          history: [...this.state.history, { "role": "system", "content": response.data }],
+          downloadProgress: '',
+          prompt: '',
+          isRequesting: false
+        })
+
+        console.log(response.data)
+        
     } catch (error) {
       console.error('Error downloading file:', error);
     }
@@ -120,7 +133,7 @@ class App extends Component {
 
   componentDidUpdate(prevProps, prevState) {
     if (!this.state.isRequesting && this.state.downloadProgress) {
-      this.setState({ history: [...this.state.history, { "role": "system", "content": (this.state.downloadProgress ? this.state.downloadProgress.toString() : '') }], downloadProgress: '' })
+      
     }
   }
 
