@@ -20,8 +20,8 @@ const styles = StyleSheet.create({
     color: "#ffffff",
   }
 })
-const abortController = new AbortController();
-const signal = abortController.signal;
+
+
 
 class App extends Component {
 
@@ -34,7 +34,9 @@ class App extends Component {
       history: [],
       isRequesting: false
     }
-    this.scrollViewRef = React.createRef();
+    this.abortControl = new AbortController()
+    this.signal = this.abortControl.signal
+    this.scrollViewRef = React.createRef()
   }
 
   preloading = async () => {
@@ -90,7 +92,15 @@ class App extends Component {
     return parts;
   }
 
+  stopResponse = () => {
+    // Stop updating screen on this click
+    this.abortControl.abort()
+    this.abortControl = new AbortController()
+    this.signal = this.abortControl.signal
+  }
+
   handleFormSubmit = async (event) => {
+
     event.preventDefault();
     if (this.state.isRequesting) {
       return
@@ -98,6 +108,7 @@ class App extends Component {
     this.setState({ isRequesting: true })
     let promptObject = this.promptObjectFunc();
     this.setState({ history: [...this.state.history, { "role": "user", "content": this.state.prompt }] })
+
     try {
       const data = {
         model: 'gpt-3.5-turbo', // 'text-davinci-003'
@@ -114,7 +125,8 @@ class App extends Component {
                 'Authorization': 'Bearer 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' },
           responseType: 'json',
           onDownloadProgress: this.throttledOnDownloadProgress,
-          signal
+          signal: this.signal,
+          error: ''
         })
 
         this.setState({ 
@@ -123,18 +135,25 @@ class App extends Component {
           prompt: '',
           isRequesting: false
         })
-
-        console.log(response.data)
         
     } catch (error) {
-      console.error('Error downloading file:', error);
+      console.log(error);
+
+      if (this.state.downloadProgress) {
+        this.setState({ 
+          history: [...this.state.history, { "role": "system", "content": this.state.downloadProgress }]
+        })
+      }
+      this.setState({ 
+        downloadProgress: '',
+        prompt: '',
+        isRequesting: false
+      })
     }
   };
 
   componentDidUpdate(prevProps, prevState) {
-    if (!this.state.isRequesting && this.state.downloadProgress) {
-      
-    }
+    
   }
 
   render() {
@@ -209,9 +228,16 @@ class App extends Component {
               <Ionicons name="ios-send" size={22} color="white" />
             </Pressable>
           </View> :
-          <Text onPress={() => { abortController.abort() }} className="bg-slate-800 rounded-3xl text-md text-gray-500 px-3 py-2 w-full">
-            Loading ...
-          </Text>
+          <View className="flex flex-row justify-between items-center px-3 py-2 absolute bottom-0 h-[70px] w-full">
+            <Text className="text-md text-gray-500 px-3 py-2">
+              Loading ...
+            </Text>
+            <Pressable onPress={this.stopResponse} className="px-3 py-2">
+              <Text className="text-md text-rose-700 px-3 py-2">
+                Stop Responsing
+              </Text>
+            </Pressable>
+          </View>
         }
       </SafeAreaView>
     )
