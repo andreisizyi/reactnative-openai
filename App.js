@@ -1,7 +1,7 @@
 // TODO split into components
 
 import React, { Component } from 'react';
-import { Image, StatusBar, SafeAreaView, KeyboardAvoidingView, StyleSheet, Text, View, TextInput, Pressable, ScrollView } from 'react-native';
+import { Image, StatusBar, SafeAreaView, StyleSheet, Text, View, TextInput, Pressable, ScrollView } from 'react-native';
 import axios from 'axios';
 // import RenderHtml from 'react-native-render-html';
 import { throttle } from 'lodash';
@@ -89,8 +89,8 @@ class App extends Component {
 
   throttledOnDownloadProgress = throttle((data) => {
     if (data.event.currentTarget) {
-      let response = data.event.currentTarget.response;
-      let parts =  this.settupLines(response);
+      let response = data.event.currentTarget.response
+      let parts =  this.settupLines(response)
       this.setState({ downloadProgress: parts })
     }
   }, 100);
@@ -203,11 +203,11 @@ class App extends Component {
             ))}
             {this.state.downloadProgress &&
               <View className="flex flex-row justify-start">
-                <Text selectable={true}
+                <Text selectable={false}
                   className={'my-2 rounded-t-3xl px-4 py-3 text-white rounded-br-3xl bg-white/10'}
                 >
                   {this.state.downloadProgress.map((item, index) => (
-                    <Text key={index}>
+                    <Text key={index+item}>
                       { item }
                     </Text>
                   ))}
@@ -231,7 +231,6 @@ class App extends Component {
               <View className="flex flex-column">
                 <Text className="text-xl text-white">
                   AI Interface
-                  { this.state.scrollDirection }
                 </Text>
                 <Text className="text-slate-500">
                   for GPT-3.5
