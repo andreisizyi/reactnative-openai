@@ -94,22 +94,27 @@ class App extends Component {
       let parts =  this.settupLines(response);
       this.setState({ downloadProgress: parts })
     }
-  }, 30);
+  }, 100);
 
   settupLines = (response) => {
     let lines = response.split('data: ')
-    let parts = '';
+    let parts = [];
     lines.forEach(json => {
       try {
         let parse = JSON.parse(json);
         if (parse) {
           let part = parse.choices[0].delta.content;
-          parts = parts + part.replace(/^\n{2}/, '');
+          parts.push(part.replace(/^\n{2}/, ''));
         }
       } catch (error) { }
     });
     
     return parts;
+  }
+
+  transformResponse = (response) => {
+    let array = this.settupLines(response)
+    return array.join('')
   }
 
   stopResponse = () => {
@@ -139,7 +144,7 @@ class App extends Component {
           method: 'post',
           url: 'https://api.openai.com/v1/chat/completions',
           data: data,
-          transformResponse: this.settupLines,
+          transformResponse: this.transformResponse,
           headers: {
                 'Content-Type': 'application/json',
                 'Authorization': 'Bearer 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' },
@@ -159,14 +164,14 @@ class App extends Component {
 
       if (this.state.downloadProgress) {
         this.setState({ 
-          history: [...this.state.history, { "role": "system", "content": this.state.downloadProgress }]
+          history: [...this.state.history, { "role": "system", "content": this.state.downloadProgress.join('') }]
         })
       }
 
     }
-
+    console.log(this.state.history);
     this.setState({ 
-      downloadProgress: '',
+      downloadProgress: null,
       prompt: '',
       isRequesting: false,
       userScrollUp: false
@@ -188,11 +193,12 @@ class App extends Component {
         >
           <View className="bg-slate-800 pt-[85px] pb-[70px] px-5">
             {this.state.history.map((item, index) => (
-              item.content.length > 1 &&
+              item.content.length > 0 &&
               <View key={index} className={"flex flex-row " + (item.role === 'system' ? 'justify-start' : 'justify-end')}>
                 <Text selectable={true}
                   className={'my-2 rounded-t-3xl px-4 py-3 text-white ' + (item.role === 'system' ? 'rounded-br-3xl bg-white/10' : 'rounded-bl-3xl bg-teal-500/70')}
                 >
+                  { item.content }
                 </Text>
               </View>
             ))}
@@ -201,7 +207,11 @@ class App extends Component {
                 <Text selectable={true}
                   className={'my-2 rounded-t-3xl px-4 py-3 text-white rounded-br-3xl bg-white/10'}
                 >
-                  {this.state.downloadProgress}
+                  {this.state.downloadProgress.map((item, index) => (
+                    <Text key={index}>
+                      { item }
+                    </Text>
+                  ))}
                 </Text>
               </View>
             }
