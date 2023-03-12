@@ -242,31 +242,39 @@ class App extends Component {
             </Pressable>
           </View>
         </View>
-       
-          <View className="flex flex-row justify-between items-center px-3 py-2 absolute bottom-0 h-[70px] w-full">
-            {!this.state.isRequesting ?
-              <TextInput
-                className="bg-slate-900 rounded-3xl text-md text-white px-3 py-3 w-full"
-                onChangeText={text => this.setState({ prompt: text })}
-                value={this.state.prompt}
-                placeholder="Write a message ..."
-                placeholderTextColor="rgb(107 114 128)"
-                multiline={false}
-              /> :
-              <Pressable onPress={this.stopResponse} className="m-auto flex justify-center bg-red-500 active:opacity-50 rounded-3xl px-3 py-3">
-                <Text className="text-md text-white">
-                  Stop responding
+        
+        <View className="absolute rounded-l-xl right-0 top-[55px] bg-white px-5 py-3">
+          <View className="flex flex-column space-y-3 items-center justify-between">
+                <Text className="text-black">
+                  Clear history
                 </Text>
-              </Pressable>
-            }
-            {!this.state.isRequesting &&
-              <Pressable
-                className="absolute right-5 flex justify-center items-center rounded-full bg-teal-500 active:opacity-50 pl-1 h-[38px] w-[38px]"
-                onPress={this.handleFormSubmit}>
-                <Ionicons name="ios-send" size={22} color="white" />
-              </Pressable>
-            }
           </View>
+        </View>
+
+        <View className="flex flex-row justify-between items-center px-3 py-2 absolute bottom-0 h-[70px] w-full">
+          {!this.state.isRequesting ?
+            <TextInput
+              className="bg-slate-900 rounded-3xl text-md text-white px-3 py-3 w-full"
+              onChangeText={text => this.setState({ prompt: text })}
+              value={this.state.prompt}
+              placeholder="Write a message ..."
+              placeholderTextColor="rgb(107 114 128)"
+              multiline={false}
+            /> :
+            <Pressable onPress={this.stopResponse} className="m-auto flex justify-center bg-red-500 active:opacity-50 rounded-3xl px-3 py-3">
+              <Text className="text-md text-white">
+                Stop responding
+              </Text>
+            </Pressable>
+          }
+          {!this.state.isRequesting &&
+            <Pressable
+              className="absolute right-5 flex justify-center items-center rounded-full bg-teal-500 active:opacity-50 pl-1 h-[38px] w-[38px]"
+              onPress={this.handleFormSubmit}>
+              <Ionicons name="ios-send" size={22} color="white" />
+            </Pressable>
+          }
+        </View>
       </SafeAreaView>
     )
   }
