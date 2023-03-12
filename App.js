@@ -1,10 +1,9 @@
 // TODO split into components
-// TODO set download progress like a array withparts of text and then show that on screen
 
 import React, { Component } from 'react';
 import { Image, StatusBar, SafeAreaView, KeyboardAvoidingView, StyleSheet, Text, View, TextInput, Pressable, ScrollView } from 'react-native';
 import axios from 'axios';
-import RenderHtml from 'react-native-render-html';
+// import RenderHtml from 'react-native-render-html';
 import { throttle } from 'lodash';
 
 // Fonts
