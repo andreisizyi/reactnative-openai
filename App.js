@@ -1,4 +1,5 @@
 // TODO split into components
+// https://reactnativeexample.com/react-native-library-to-detect-clicks-outside-the-component/
 
 import React, { Component } from 'react';
 import { Image, StatusBar, SafeAreaView, StyleSheet, Text, View, TextInput, Pressable, ScrollView } from 'react-native';
@@ -32,10 +33,11 @@ class App extends Component {
       isRequesting: false,
       scrollOffset: 0,
       scrollDirection: '',
-      userScrollUp: false
+      userScrollUp: false,
+      menuOpen: false
     }
 
-    this.handleScroll = this.handleScroll.bind(this);
+    this.handleScroll = this.handleScroll.bind(this)
     this.abortControl = new AbortController()
     this.signal = this.abortControl.signal
     this.scrollViewRef = React.createRef()
@@ -185,7 +187,7 @@ class App extends Component {
     return (
       <SafeAreaView className="bg-slate-800 flex-1 w-full">
         <StatusBar />
-        <ScrollView
+        <ScrollView 
           ref={this.scrollViewRef}
           onContentSizeChange={this.handleContentSizeChange}
           onScroll={this.handleScroll}
@@ -221,35 +223,23 @@ class App extends Component {
             }
           </View>
         </ScrollView>
-        <View className="absolute top-0 h-[70px] w-full bg-slate-900 px-3 py-2">
-          <View className="flex flex-row items-center justify-between">
-            <View className="flex flex-row items-center gap-5">
+        <View className="absolute top-0 h-[70px] w-full bg-slate-900 px-3 py-2 flex flex-row items-center justify-between">
+            <View className="flex flex-row items-center gap-4">
               <Image
                 className="w-[35px] h-[35px] rounded-full"
                 source={require('./assets/icon.png')}
               />
               <View className="flex flex-column">
                 <Text className="text-xl text-white">
-                  AI Interface
-                </Text>
-                <Text className="text-slate-500">
-                  for GPT-3.5
+                  Model GPT-3.5
                 </Text>
               </View>
             </View>
-            <Pressable onPress={() => this.setState({ history: [] })} className="ml-2 flex justify-center items-center rounded-full w-[20px] h-[20px]">
+            <Pressable onPress={() => this.setState({ menuOpen: !this.state.menuOpen })} className="active:opacity-50 ml-2 flex justify-center items-center rounded-full w-[20px] h-[20px]">
               <Ionicons name="ellipsis-vertical" size={20} color="white" />
             </Pressable>
-          </View>
         </View>
         
-        <View className="absolute rounded-l-xl right-0 top-[55px] bg-white px-5 py-3">
-          <View className="flex flex-column space-y-3 items-center justify-between">
-                <Text className="text-black">
-                  Clear history
-                </Text>
-          </View>
-        </View>
 
         <View className="flex flex-row justify-between items-center px-3 py-2 absolute bottom-0 h-[70px] w-full">
           {!this.state.isRequesting ?
@@ -275,6 +265,24 @@ class App extends Component {
             </Pressable>
           }
         </View>
+
+        { this.state.menuOpen &&
+            <View className="absolute h-full w-full">
+              <View 
+                onTouchStart={() => {this.setState({ menuOpen: false })}}
+                className="h-full w-full">
+              </View>
+              <View className="absolute rounded-l-xl right-0 top-[55px] bg-white px-5 py-3">
+                <View rclassName="flex flex-column space-y-3 items-center justify-between">
+                      <Pressable onPress={() => { this.setState({ history: [] }); this.setState({ menuOpen: false })} }>
+                        <Text className="text-black">
+                          Clear history
+                        </Text>
+                      </Pressable>
+                </View>
+              </View>
+            </View>
+          }
       </SafeAreaView>
     )
   }
