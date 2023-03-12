@@ -1,5 +1,5 @@
 // TODO split into components
-// TODO set how much request is left
+// TODO set download progress like a array withparts of text and then show that on screen
 
 import React, { Component } from 'react';
 import { Image, StatusBar, SafeAreaView, KeyboardAvoidingView, StyleSheet, Text, View, TextInput, Pressable, ScrollView } from 'react-native';
@@ -21,8 +21,6 @@ const styles = StyleSheet.create({
   }
 })
 
-
-
 class App extends Component {
 
   constructor(props) {
@@ -32,8 +30,13 @@ class App extends Component {
       downloadProgress: null,
       prompt: '',
       history: [],
-      isRequesting: false
+      isRequesting: false,
+      scrollOffset: 0,
+      scrollDirection: '',
+      userScrollUp: false
     }
+
+    this.handleScroll = this.handleScroll.bind(this);
     this.abortControl = new AbortController()
     this.signal = this.abortControl.signal
     this.scrollViewRef = React.createRef()
@@ -58,10 +61,27 @@ class App extends Component {
 
   // Обработчик изменения размеров содержимого ScrollView
   handleContentSizeChange = (contentWidth, contentHeight) => {
+    if (this.state.userScrollUp) return
     const scrollViewHeight = this.scrollViewRef.current?.getHeight?.() || 0;
     const contentBottomY = contentHeight - scrollViewHeight;
     this.scrollViewRef.current?.scrollTo?.({ y: contentBottomY, animated: true });
   };
+
+  handleScroll(event) {
+    const currentOffset = event.nativeEvent.contentOffset.y;
+    const direction = currentOffset > this.state.scrollOffset ? 'down' : 'up';
+
+    if (currentOffset < this.state.scrollOffset) {
+      this.setState({
+        userScrollUp: true
+      });
+    }
+    
+    this.setState({
+      scrollOffset: currentOffset,
+      scrollDirection: direction
+    });
+  }
 
   promptObjectFunc = () => {
     let promptObject = [...this.state.history, { "role": "user", "content": this.state.prompt }];
@@ -131,12 +151,10 @@ class App extends Component {
 
         this.setState({ 
           history: [...this.state.history, { "role": "system", "content": response.data }],
-          downloadProgress: '',
-          prompt: '',
-          isRequesting: false
         })
         
     } catch (error) {
+
       console.log(error);
 
       if (this.state.downloadProgress) {
@@ -144,12 +162,15 @@ class App extends Component {
           history: [...this.state.history, { "role": "system", "content": this.state.downloadProgress }]
         })
       }
-      this.setState({ 
-        downloadProgress: '',
-        prompt: '',
-        isRequesting: false
-      })
+
     }
+
+    this.setState({ 
+      downloadProgress: '',
+      prompt: '',
+      isRequesting: false,
+      userScrollUp: false
+    })
   };
 
   componentDidUpdate(prevProps, prevState) {
@@ -163,6 +184,7 @@ class App extends Component {
         <ScrollView
           ref={this.scrollViewRef}
           onContentSizeChange={this.handleContentSizeChange}
+          onScroll={this.handleScroll}
         >
           <View className="bg-slate-800 pt-[85px] pb-[70px] px-5">
             {this.state.history.map((item, index) => (
@@ -171,7 +193,6 @@ class App extends Component {
                 <Text selectable={true}
                   className={'my-2 rounded-t-3xl px-4 py-3 text-white ' + (item.role === 'system' ? 'rounded-br-3xl bg-white/10' : 'rounded-bl-3xl bg-teal-500/70')}
                 >
-                  {item.content}
                 </Text>
               </View>
             ))}
@@ -201,6 +222,7 @@ class App extends Component {
               <View className="flex flex-column">
                 <Text className="text-xl text-white">
                   AI Interface
+                  { this.state.scrollDirection }
                 </Text>
                 <Text className="text-slate-500">
                   for GPT-3.5
@@ -212,33 +234,31 @@ class App extends Component {
             </Pressable>
           </View>
         </View>
-        {!this.state.isRequesting ?
+       
           <View className="flex flex-row justify-between items-center px-3 py-2 absolute bottom-0 h-[70px] w-full">
-            <TextInput
-              className="bg-slate-900 rounded-3xl text-md text-white px-3 py-3 w-full"
-              onChangeText={text => this.setState({ prompt: text })}
-              value={this.state.prompt}
-              placeholder="Write a message ..."
-              placeholderTextColor="rgb(107 114 128)"
-              multiline={false}
-            />
-            <Pressable
-              className="absolute right-5 flex justify-center items-center rounded-full bg-teal-500 active:opacity-50 pl-1 h-[38px] w-[38px]"
-              onPress={this.handleFormSubmit}>
-              <Ionicons name="ios-send" size={22} color="white" />
-            </Pressable>
-          </View> :
-          <View className="flex flex-row justify-between items-center px-3 py-2 absolute bottom-0 h-[70px] w-full">
-            <Text className="text-md text-gray-500 px-3 py-2">
-              Loading ...
-            </Text>
-            <Pressable onPress={this.stopResponse} className="px-3 py-2">
-              <Text className="text-md text-rose-700 px-3 py-2">
-                Stop Responsing
-              </Text>
-            </Pressable>
+            {!this.state.isRequesting ?
+              <TextInput
+                className="bg-slate-900 rounded-3xl text-md text-white px-3 py-3 w-full"
+                onChangeText={text => this.setState({ prompt: text })}
+                value={this.state.prompt}
+                placeholder="Write a message ..."
+                placeholderTextColor="rgb(107 114 128)"
+                multiline={false}
+              /> :
+              <Pressable onPress={this.stopResponse} className="m-auto flex justify-center bg-red-500 active:opacity-50 rounded-3xl px-3 py-3">
+                <Text className="text-md text-white">
+                  Stop responding
+                </Text>
+              </Pressable>
+            }
+            {!this.state.isRequesting &&
+              <Pressable
+                className="absolute right-5 flex justify-center items-center rounded-full bg-teal-500 active:opacity-50 pl-1 h-[38px] w-[38px]"
+                onPress={this.handleFormSubmit}>
+                <Ionicons name="ios-send" size={22} color="white" />
+              </Pressable>
+            }
           </View>
-        }
       </SafeAreaView>
     )
   }
