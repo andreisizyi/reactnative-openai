@@ -6,6 +6,7 @@ import { Image, StatusBar, SafeAreaView, StyleSheet, Text, View, TextInput, Pres
 import axios from 'axios';
 // import RenderHtml from 'react-native-render-html';
 import { throttle } from 'lodash';
+import { LinearGradient } from 'expo-linear-gradient';
 
 // Fonts
 import useFonts from './resources/fonts'
@@ -95,7 +96,7 @@ class App extends Component {
       let parts =  this.settupLines(response)
       this.setState({ downloadProgress: parts })
     }
-  }, 100);
+  }, 30);
 
   settupLines = (response) => {
     let lines = response.split('data: ')
@@ -161,7 +162,7 @@ class App extends Component {
         
     } catch (error) {
 
-      console.log(error);
+      //console.log(error);
 
       if (this.state.downloadProgress) {
         this.setState({ 
@@ -170,7 +171,7 @@ class App extends Component {
       }
 
     }
-    console.log(this.state.history);
+    //console.log(this.state.history);
     this.setState({ 
       downloadProgress: null,
       prompt: '',
@@ -187,19 +188,27 @@ class App extends Component {
     return (
       <SafeAreaView className="bg-slate-800 flex-1 w-full">
         <StatusBar />
+        {/* <LinearGradient className="absolute h-full w-full" start={[-0.3, 0.2]} end={[0.5, 0.8]} colors={['rgba(15,23,42,0.1)', 'rgba(255,138,92,0.05)']} /> */}
         <ScrollView 
           ref={this.scrollViewRef}
           onContentSizeChange={this.handleContentSizeChange}
           onScroll={this.handleScroll}
         >
-          <View className="bg-slate-800 pt-[85px] pb-[70px] px-5">
+          <View className="pt-16 mt-2 pb-16 px-5">
             {this.state.history.map((item, index) => (
               item.content.length > 0 &&
-              <View key={index} className={"flex flex-row " + (item.role === 'system' ? 'justify-start' : 'justify-end')}>
+              <View key={index} 
+                      className={`flex flex-row 
+                        ${ item.role === 'system' ? 'justify-start' : 'justify-end'}`}>
                 <Text selectable={true}
-                  className={'my-2 rounded-t-3xl px-4 py-3 text-white ' + (item.role === 'system' ? 'rounded-br-3xl bg-white/10' : 'rounded-bl-3xl bg-teal-500/70')}
+                        className={`mt-2 mb-5 rounded-t-3xl px-4 py-3 text-white 
+                          ${ item.role === 'system' ? 'rounded-br-3xl bg-white/10' : 'rounded-bl-3xl bg-teal-500/70'}`}
                 >
                   { item.content }
+                </Text>
+                <Text className={ `absolute text-xs bottom-0
+                        ${ item.role === 'system' ? 'text-slate-500 left-0' : 'text-teal-500 opacity-70 right-0' }`  }>
+                  { item.role }
                 </Text>
               </View>
             ))}
@@ -217,26 +226,27 @@ class App extends Component {
               </View>
             }
             {!this.state.history.length > 0 &&
-              <Text className="py-3 text-slate-500">
-                Send message to start conversation ...
+              <Text className="self-center my-2 rounded-3xl px-4 py-3 text-white rounded-br-3xl bg-white/10">
+                Send message to start conversation
               </Text>
             }
           </View>
         </ScrollView>
-        <View className="absolute top-0 h-[70px] w-full bg-slate-900 px-3 py-2 flex flex-row items-center justify-between">
+        <View className="absolute top-0 h-14 w-full bg-slate-900 px-3 py-2 flex flex-row items-center justify-between">
             <View className="flex flex-row items-center gap-4">
               <Image
-                className="w-[35px] h-[35px] rounded-full"
+                className="w-8 h-8 rounded-full"
                 source={require('./assets/icon.png')}
               />
               <View className="flex flex-column">
-                <Text className="text-xl text-white">
+                <Text className="text-base text-white">
                   Model GPT-3.5
                 </Text>
               </View>
             </View>
-            <Pressable onPress={() => this.setState({ menuOpen: !this.state.menuOpen })} className="active:opacity-50 ml-2 flex justify-center items-center rounded-full w-[20px] h-[20px]">
-              <Ionicons name="ellipsis-vertical" size={20} color="white" />
+            <Pressable onPress={() => this.setState({ menuOpen: !this.state.menuOpen })} 
+                          className="active:opacity-50 ml-2 flex justify-center items-center rounded-full -mr-3 w-12 h-12">
+              <Ionicons name="ellipsis-vertical" size={22} color="white" />
             </Pressable>
         </View>
         
@@ -251,7 +261,8 @@ class App extends Component {
               placeholderTextColor="rgb(107 114 128)"
               multiline={false}
             /> :
-            <Pressable onPress={this.stopResponse} className="m-auto flex justify-center bg-red-500 active:opacity-50 rounded-3xl px-3 py-3">
+            <Pressable onPress={this.stopResponse} 
+                        className="m-auto flex justify-center bg-red-500 active:opacity-50 rounded-3xl px-3 py-3">
               <Text className="text-md text-white">
                 Stop responding
               </Text>
@@ -272,10 +283,10 @@ class App extends Component {
                 onTouchStart={() => {this.setState({ menuOpen: false })}}
                 className="h-full w-full">
               </View>
-              <View className="absolute rounded-l-xl right-0 top-[55px] bg-white px-5 py-3">
+              <View className="absolute rounded-l-xl right-0 top-[55px] bg-white">
                 <View rclassName="flex flex-column space-y-3 items-center justify-between">
                       <Pressable onPress={() => { this.setState({ history: [] }); this.setState({ menuOpen: false })} }>
-                        <Text className="text-black">
+                        <Text className="px-5 py-3 text-base text-black">
                           Clear history
                         </Text>
                       </Pressable>
