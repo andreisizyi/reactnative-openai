@@ -186,7 +186,7 @@ class App extends Component {
 
   render() {
     return (
-      <SafeAreaView className="bg-slate-800 flex-1 w-full">
+      <SafeAreaView className="flex-1 bg-slate-800">
         <StatusBar />
         {/* <LinearGradient className="absolute h-full w-full" start={[-0.3, 0.2]} end={[0.5, 0.8]} colors={['rgba(15,23,42,0.1)', 'rgba(255,138,92,0.05)']} /> */}
         <ScrollView 
@@ -194,7 +194,7 @@ class App extends Component {
           onContentSizeChange={this.handleContentSizeChange}
           onScroll={this.handleScroll}
         >
-          <View className="pt-16 mt-2 pb-16 px-5">
+          <View className="pt-16 pb-16 mt-2 px-5">
             {this.state.history.map((item, index) => (
               item.content.length > 0 &&
               <View key={index} 
@@ -206,7 +206,7 @@ class App extends Component {
                 >
                   { item.content }
                 </Text>
-                <Text className={ `absolute text-xs bottom-0
+                <Text className={ `absolute bottom-0 text-xs
                         ${ item.role === 'system' ? 'text-slate-500 left-0' : 'text-teal-500 opacity-70 right-0' }`  }>
                   { item.role }
                 </Text>
@@ -226,14 +226,14 @@ class App extends Component {
               </View>
             }
             {!this.state.history.length > 0 &&
-              <Text className="self-center my-2 rounded-3xl px-4 py-3 text-white rounded-br-3xl bg-white/10">
+              <Text className="self-center my-2 px-4 py-3 text-white rounded-3xl bg-white/10">
                 Send message to start conversation
               </Text>
             }
           </View>
         </ScrollView>
-        <View className="absolute top-0 h-14 w-full bg-slate-900 px-3 py-2 flex flex-row items-center justify-between">
-            <View className="flex flex-row items-center gap-4">
+        <View className="absolute h-14 w-full px-3 py-2 top-0 flex flex-row items-center justify-between bg-slate-900 ">
+            <View className="flex flex-row gap-4 items-center">
               <Image
                 className="w-8 h-8 rounded-full"
                 source={require('./assets/icon.png')}
@@ -245,16 +245,16 @@ class App extends Component {
               </View>
             </View>
             <Pressable onPress={() => this.setState({ menuOpen: !this.state.menuOpen })} 
-                          className="active:opacity-50 ml-2 flex justify-center items-center rounded-full -mr-3 w-12 h-12">
+                          className="ml-2 -mr-3 w-12 h-12 flex justify-center items-center rounded-full active:opacity-50">
               <Ionicons name="ellipsis-vertical" size={22} color="white" />
             </Pressable>
         </View>
         
 
-        <View className="flex flex-row justify-between items-center px-3 py-2 absolute bottom-0 h-[70px] w-full">
+        <View className="absolute bottom-0 h-[70px] px-3 py-2 w-full flex flex-row justify-between items-center">
           {!this.state.isRequesting ?
             <TextInput
-              className="bg-slate-900 rounded-3xl text-md text-white px-3 py-3 w-full"
+              className="w-full px-3 py-3 bg-slate-900 rounded-3xl text-md text-white"
               onChangeText={text => this.setState({ prompt: text })}
               value={this.state.prompt}
               placeholder="Write a message ..."
@@ -270,7 +270,7 @@ class App extends Component {
           }
           {!this.state.isRequesting &&
             <Pressable
-              className="absolute right-5 flex justify-center items-center rounded-full bg-teal-500 active:opacity-50 pl-1 h-[38px] w-[38px]"
+              className="absolute h-[38px] w-[38px] right-5 pl-1 flex justify-center items-center rounded-full bg-teal-500 active:opacity-50"
               onPress={this.handleFormSubmit}>
               <Ionicons name="ios-send" size={22} color="white" />
             </Pressable>
@@ -283,7 +283,7 @@ class App extends Component {
                 onTouchStart={() => {this.setState({ menuOpen: false })}}
                 className="h-full w-full">
               </View>
-              <View className="absolute rounded-l-xl right-0 top-[55px] bg-white">
+              <View className="absolute right-0 top-[55px] rounded-l-xl bg-white">
                 <View rclassName="flex flex-column space-y-3 items-center justify-between">
                       <Pressable onPress={() => { this.setState({ history: [] }); this.setState({ menuOpen: false })} }>
                         <Text className="px-5 py-3 text-base text-black">
