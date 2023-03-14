@@ -194,9 +194,8 @@ class App extends Component {
           onContentSizeChange={this.handleContentSizeChange}
           onScroll={this.handleScroll}
         >
-          <View className="pt-16 pb-16 mt-2 px-5">
+          <View className="pt-16 pb-[80px] mt-2 px-5">
             {this.state.history.map((item, index) => (
-              item.content.length > 0 &&
               <View key={index} 
                       className={`flex flex-row 
                         ${ item.role === 'system' ? 'justify-start' : 'justify-end'}`}>
@@ -232,29 +231,33 @@ class App extends Component {
             }
           </View>
         </ScrollView>
-        <View className="absolute h-14 w-full px-3 py-2 top-0 flex flex-row items-center justify-between bg-slate-900 ">
+        <View className="absolute h-14 w-full py-2 top-0 flex flex-row items-center justify-between bg-slate-900 ">
             <View className="flex flex-row gap-4 items-center">
-              <Image
+              {/* <Image
                 className="w-8 h-8 rounded-full"
                 source={require('./assets/icon.png')}
-              />
+              /> */}
+              <Pressable
+                className="w-12 h-12 flex justify-center items-center rounded-full active:opacity-50"
+                >
+                <Ionicons name="ios-chevron-back" size={22} color="white" />
+              </Pressable>
               <View className="flex flex-column">
                 <Text className="text-base text-white">
-                  Model GPT-3.5
+                  { this.state.history[0]?.content?.slice(0, 25) ?? 'New conversation' }...
                 </Text>
               </View>
             </View>
             <Pressable onPress={() => this.setState({ menuOpen: !this.state.menuOpen })} 
-                          className="ml-2 -mr-3 w-12 h-12 flex justify-center items-center rounded-full active:opacity-50">
+                          className="w-12 h-12 flex justify-center items-center rounded-full active:opacity-50">
               <Ionicons name="ellipsis-vertical" size={22} color="white" />
             </Pressable>
         </View>
-        
 
         <View className="absolute bottom-0 h-[70px] px-3 py-2 w-full flex flex-row justify-between items-center">
           {!this.state.isRequesting ?
             <TextInput
-              className="w-full px-3 py-3 bg-slate-900 rounded-3xl text-md text-white"
+              className="w-full px-3 py-3 pr-14 bg-slate-900 rounded-3xl text-md text-white"
               onChangeText={text => this.setState({ prompt: text })}
               value={this.state.prompt}
               placeholder="Write a message ..."
@@ -268,7 +271,7 @@ class App extends Component {
               </Text>
             </Pressable>
           }
-          {!this.state.isRequesting &&
+          {!this.state.isRequesting && this.state.prompt &&
             <Pressable
               className="absolute h-[38px] w-[38px] right-5 pl-1 flex justify-center items-center rounded-full bg-teal-500 active:opacity-50"
               onPress={this.handleFormSubmit}>
