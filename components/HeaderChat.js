@@ -15,7 +15,6 @@ export default class HeaderChat extends Component {
     }
 
     render() {
-        console.log(this.upper)
         return ([
             <View key="header-bar" className="absolute h-14 w-full py-2 top-0 flex flex-row items-center justify-between bg-slate-900 ">
                 <View className="flex flex-row gap-4 items-center">
