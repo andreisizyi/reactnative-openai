@@ -1,18 +1,18 @@
-import React, { Component } from 'react';
-import { StatusBar, SafeAreaView, Text, View, TextInput, Pressable, ScrollView } from 'react-native';
-import axios from 'axios';
-import { throttle } from 'lodash';
-import { LinearGradient } from 'expo-linear-gradient';
+import React, { Component } from 'react'
+import { DeviceEventEmitter, StatusBar, SafeAreaView, Text, View, TextInput, Pressable, ScrollView } from 'react-native'
+import axios from 'axios'
+import { throttle } from 'lodash'
+import { LinearGradient } from 'expo-linear-gradient'
 
 // Components
 import HeaderChat from '../components/HeaderChat'
 
 // Fonts
-import Ionicons from '@expo/vector-icons/Ionicons';
+import Ionicons from '@expo/vector-icons/Ionicons'
 
 export default class ChatScreen extends Component {
     constructor(props) {
-        super(props);
+        super(props)
         this.state = {
             downloadProgress: null,
             prompt: 'ddd',
@@ -27,11 +27,15 @@ export default class ChatScreen extends Component {
         this.abortControl = new AbortController()
         this.signal = this.abortControl.signal
         this.scrollViewRef = React.createRef()
+
+        DeviceEventEmitter.addListener('chat', (newState) => {
+            this.setState(newState)
+        });
     }
 
     // Update all sended states from lower components
     setUpper = (newState) => {
-        this.setState(newState);
+        this.setState(newState)
     }
 
     // Handler for change content size ScrollView
