@@ -32,10 +32,11 @@ export default class ChatScreen extends Component {
                 </View>
                 <View className="absolute right-0 top-[55px] rounded-l-xl bg-white">
                     <View rclassName="flex flex-column space-y-3 items-center justify-between">
-                        <Pressable onPress={this.clearHistory}>
-                            <Text className="px-5 py-3 text-base text-red-500">
-                                Clear history <Ionicons name="ios-alert-circle-outline" size={18} color="red" />
-                            </Text>
+                        <Pressable 
+                            onPress={this.clearHistory}
+                            className="flex flex-row items-center px-5 py-3">
+                            <Text className="mr-1 text-base text-red-500">Clear history</Text>
+                            <Ionicons name="ios-alert-circle-outline" size={18} color="red" />
                         </Pressable>
                     </View>
                 </View>

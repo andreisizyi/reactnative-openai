@@ -15,7 +15,7 @@ export default class ChatScreen extends Component {
         super(props)
         this.state = {
             downloadProgress: null,
-            prompt: 'ddd',
+            prompt: '',
             history: [],
             isRequesting: false,
             scrollOffset: 0,
