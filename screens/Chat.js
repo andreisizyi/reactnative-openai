@@ -10,6 +10,8 @@ import HeaderChat from '../components/HeaderChat'
 // Fonts
 import Ionicons from '@expo/vector-icons/Ionicons'
 
+const rate = 10
+
 export default class ChatScreen extends Component {
     constructor(props) {
         super(props)
@@ -20,7 +22,9 @@ export default class ChatScreen extends Component {
             isRequesting: false,
             scrollOffset: 0,
             scrollDirection: '',
-            userScrollUp: false
+            userScrollUp: false,
+            throttled: false,
+            rate: rate
         }
 
         this.handleScroll = this.handleScroll.bind(this)
@@ -67,13 +71,27 @@ export default class ChatScreen extends Component {
         return promptObject;
     }
 
-    throttledOnDownloadProgress = throttle((data) => {
+    // throttle(() => {}, rate)
+    throttledOnDownloadProgress = (data) => {
+
+        // Iterational slowing update rate
+        if (this.state.throttled) return
+
+        this.setState({ throttled: true })
+        if (this.state.rate < 500) {
+            this.setState({ rate: this.state.rate + this.state.rate*2 / this.state.rate })
+        }
+
+        setTimeout(() => {
+            this.setState({ throttled: false })
+        }, rate)
+
         if (data.event.currentTarget) {
             let response = data.event.currentTarget.response
             let parts = this.settupLines(response)
             this.setState({ downloadProgress: parts })
         }
-    }, 30);
+    };
 
     settupLines = (response) => {
         let lines = response.split('data: ')
@@ -154,7 +172,8 @@ export default class ChatScreen extends Component {
             downloadProgress: null,
             prompt: '',
             isRequesting: false,
-            userScrollUp: false
+            userScrollUp: false,
+            rate: rate
         })
     };
 
@@ -173,6 +192,7 @@ export default class ChatScreen extends Component {
                     onScroll={this.handleScroll}
                 >
                     <View className="pt-16 pb-[80px] mt-2 px-5">
+                        <Text className="text-white">{this.state.rate}</Text>
                         {this.state.history.map((item, index) => (
                             <View key={index}
                                 className={`flex flex-row 
