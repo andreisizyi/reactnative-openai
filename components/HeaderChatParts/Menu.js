@@ -2,6 +2,9 @@
 import React, { Component } from 'react'
 import { DeviceEventEmitter, Text, View, Pressable } from 'react-native'
 
+// Fonts
+import Ionicons from '@expo/vector-icons/Ionicons'
+
 export default class ChatScreen extends Component {
     constructor(props) {
         super(props)
@@ -30,8 +33,8 @@ export default class ChatScreen extends Component {
                 <View className="absolute right-0 top-[55px] rounded-l-xl bg-white">
                     <View rclassName="flex flex-column space-y-3 items-center justify-between">
                         <Pressable onPress={this.clearHistory}>
-                            <Text className="px-5 py-3 text-base text-black">
-                                Clear history
+                            <Text className="px-5 py-3 text-base text-red-500">
+                                Clear history <Ionicons name="ios-alert-circle-outline" size={18} color="red" />
                             </Text>
                         </Pressable>
                     </View>
