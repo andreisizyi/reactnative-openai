@@ -1,4 +1,4 @@
-import React, { Component } from 'react'
+import React, { useCallback, Component } from 'react'
 import { DeviceEventEmitter, StatusBar, SafeAreaView, Text, View, TextInput, Pressable, ScrollView } from 'react-native'
 import axios from 'axios'
 import { throttle } from 'lodash'
@@ -10,7 +10,10 @@ import HeaderChat from '../components/HeaderChat'
 // Fonts
 import Ionicons from '@expo/vector-icons/Ionicons'
 
-const rate = 10
+const rate = 30
+var test = 0;
+var mutex = false;
+var iterationalrate = 10
 
 export default class ChatScreen extends Component {
     constructor(props) {
@@ -70,42 +73,62 @@ export default class ChatScreen extends Component {
         let promptObject = [...this.state.history, { "role": "user", "content": this.state.prompt }];
         return promptObject;
     }
-
+ 
     // throttle(() => {}, rate)
     throttledOnDownloadProgress = (data) => {
+        
+            // Iterational slowing update rate
+            if (mutex) { // todo  crete like method of function throgth fucntion
+                return;
+            }
+            mutex = true;
+            console.log(++test, this.state.downloadProgress?.length, iterationalrate);
+            
+            
+            
+            if (data.event.currentTarget) {
+                let response = data.event.currentTarget.response
+                let parts = this.settupLines(response)
+                
+                this.setState({ downloadProgress: parts })
+            }
 
-        // Iterational slowing update rate
-        if (this.state.throttled) return
 
-        this.setState({ throttled: true })
-        if (this.state.rate < 500) {
-            this.setState({ rate: this.state.rate + this.state.rate*2 / this.state.rate })
+
+            if (iterationalrate < 500) {
+                iterationalrate *= 1.05
+            }
+            timerId = setTimeout(() => { // TODO
+                mutex = false
+            }, iterationalrate)
+    }
+
+    shouldComponentUpdate(nextProps, nextState) { // TODO
+        // Return true if component should update, false otherwise
+        if (nextState.state !== this.state) {
+           
+            return true
+        } else {
+            return false
         }
-
-        setTimeout(() => {
-            this.setState({ throttled: false })
-        }, rate)
-
-        if (data.event.currentTarget) {
-            let response = data.event.currentTarget.response
-            let parts = this.settupLines(response)
-            this.setState({ downloadProgress: parts })
-        }
-    };
+        
+    }
 
     settupLines = (response) => {
-        let lines = response.split('data: ')
-        let parts = [];
-        lines.forEach(json => {
+        
+        const lines = response.split('data: ')
+        if (!lines) return
+        lines.pop()
+        const parts = lines.map((json) => {
             try {
-                let parse = JSON.parse(json);
-                if (parse) {
-                    let part = parse.choices[0].delta.content;
-                    parts.push(part.replace(/^\n{2}/, ''));
-                }
-            } catch (error) { }
-        });
-
+              const parse = JSON.parse(json);
+              if (parse) {
+                const part = parse.choices[0].delta.content;
+                return part.replace(/^\n{2}/, '');
+              }
+            } catch (error) {}
+            return null;
+        }).filter((part) => part !== null)
         return parts;
     }
 
@@ -146,7 +169,7 @@ export default class ChatScreen extends Component {
                     'Content-Type': 'application/json',
                     'Authorization': 'Bearer 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'
                 },
-                responseType: 'json',
+                responseType: 'text',
                 onDownloadProgress: this.throttledOnDownloadProgress,
                 signal: this.signal,
                 error: ''
@@ -175,6 +198,9 @@ export default class ChatScreen extends Component {
             userScrollUp: false,
             rate: rate
         })
+
+        mutex = false;
+        iterationalrate = rate
     };
 
     componentDidUpdate(prevProps, prevState) {
