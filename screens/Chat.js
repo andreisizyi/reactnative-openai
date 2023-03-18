@@ -191,7 +191,7 @@ export default class ChatScreen extends Component {
                     setUpper={this.setUpper}
                 />
 
-                <ScrollView
+                <ScrollView // TODO replace by Flat List
                     ref={this.scrollViewRef}
                     onContentSizeChange={this.handleContentSizeChange}
                     onScroll={this.handleScroll}
