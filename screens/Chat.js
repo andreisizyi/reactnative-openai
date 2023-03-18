@@ -12,24 +12,7 @@ import Ionicons from '@expo/vector-icons/Ionicons'
 
 var test = 0
 
-const rateLimeterStart = 30
-var rateLimeterState = false
-var rateLimeterDynamical = rateLimeterStart
-function rateLimeter(func) {
-    // Iterational slowing function rate
-    return function (...args) {
-        if (rateLimeterState) return
-        mutex = true
-
-        const result = func(...args);
-
-        if (rateLimeterDynamical < 500) rateLimeterDynamical *= 1.05
-        setTimeout(() => {
-            rateLimeterState = false
-        }, rateLimeterDynamical)
-        return result;
-    }
-}
+import RateLimeter from '../utils/helpers/RateLimiter'
 
 const token = "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"
 
@@ -43,8 +26,7 @@ export default class ChatScreen extends Component {
             isRequesting: false,
             scrollOffset: 0,
             scrollDirection: '',
-            userScrollUp: false,
-            throttled: false
+            userScrollUp: false
         }
 
         this.handleScroll = this.handleScroll.bind(this)
@@ -93,7 +75,7 @@ export default class ChatScreen extends Component {
 
     // throttle(() => {}, rate)
     OnDownloadProgress = (data) => {
-        console.log(++test, this.state.downloadProgress?.length, rateLimeterDynamical);
+        console.log(++test, this.state.downloadProgress?.length, 'kkk');
 
         if (data.event.currentTarget) {
             let response = data.event.currentTarget.response
@@ -159,6 +141,7 @@ export default class ChatScreen extends Component {
                 messages: promptObject,
                 stream: true,
             };
+            const rate = new RateLimeter(30)
             const response = await axios({
                 method: 'post',
                 url: 'https://api.openai.com/v1/chat/completions',
@@ -169,7 +152,7 @@ export default class ChatScreen extends Component {
                     'Authorization': `Bearer ${token}`
                 },
                 responseType: 'text',
-                onDownloadProgress: rateLimeter(this.OnDownloadProgress),
+                onDownloadProgress: rate.limit(this.OnDownloadProgress),
                 signal: this.signal,
                 error: ''
             })
@@ -196,9 +179,6 @@ export default class ChatScreen extends Component {
             isRequesting: false,
             userScrollUp: false,
         })
-
-        mutex = false
-        rateLimeterDynamical = rateLimeterStart
     };
 
     componentDidUpdate(prevProps, prevState) {
@@ -210,6 +190,12 @@ export default class ChatScreen extends Component {
             <SafeAreaView className="flex-1 bg-slate-800">
                 <StatusBar />
                 {/* <LinearGradient className="absolute h-full w-full" start={[-0.3, 0.2]} end={[0.5, 0.8]} colors={['rgba(15,23,42,0.1)', 'rgba(255,138,92,0.05)']} /> */}
+                
+                <HeaderChat
+                    history={this.state.history}
+                    setUpper={this.setUpper}
+                />
+
                 <ScrollView
                     ref={this.scrollViewRef}
                     onContentSizeChange={this.handleContentSizeChange}
@@ -252,11 +238,6 @@ export default class ChatScreen extends Component {
                         }
                     </View>
                 </ScrollView>
-
-                <HeaderChat
-                    history={this.state.history}
-                    setUpper={this.setUpper}
-                />
 
                 <View className="absolute bottom-0 h-[70px] px-3 py-2 w-full flex flex-row justify-between items-center">
                     {!this.state.isRequesting ?
