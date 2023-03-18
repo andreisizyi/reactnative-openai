@@ -10,10 +10,28 @@ import HeaderChat from '../components/HeaderChat'
 // Fonts
 import Ionicons from '@expo/vector-icons/Ionicons'
 
-const rate = 30
-var test = 0;
-var mutex = false;
-var iterationalrate = 10
+var test = 0
+
+const rateLimeterStart = 30
+var rateLimeterState = false
+var rateLimeterDynamical = rateLimeterStart
+function rateLimeter(func) {
+    // Iterational slowing function rate
+    return function (...args) {
+        if (rateLimeterState) return
+        mutex = true
+
+        const result = func(...args);
+
+        if (rateLimeterDynamical < 500) rateLimeterDynamical *= 1.05
+        setTimeout(() => {
+            rateLimeterState = false
+        }, rateLimeterDynamical)
+        return result;
+    }
+}
+
+const token = "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"
 
 export default class ChatScreen extends Component {
     constructor(props) {
@@ -26,8 +44,7 @@ export default class ChatScreen extends Component {
             scrollOffset: 0,
             scrollDirection: '',
             userScrollUp: false,
-            throttled: false,
-            rate: rate
+            throttled: false
         }
 
         this.handleScroll = this.handleScroll.bind(this)
@@ -73,60 +90,42 @@ export default class ChatScreen extends Component {
         let promptObject = [...this.state.history, { "role": "user", "content": this.state.prompt }];
         return promptObject;
     }
- 
+
     // throttle(() => {}, rate)
-    throttledOnDownloadProgress = (data) => {
-        
-            // Iterational slowing update rate
-            if (mutex) { // todo  crete like method of function throgth fucntion
-                return;
-            }
-            mutex = true;
-            console.log(++test, this.state.downloadProgress?.length, iterationalrate);
-            
-            
-            
-            if (data.event.currentTarget) {
-                let response = data.event.currentTarget.response
-                let parts = this.settupLines(response)
-                
-                this.setState({ downloadProgress: parts })
-            }
+    OnDownloadProgress = (data) => {
+        console.log(++test, this.state.downloadProgress?.length, rateLimeterDynamical);
 
-
-
-            if (iterationalrate < 500) {
-                iterationalrate *= 1.05
-            }
-            timerId = setTimeout(() => { // TODO
-                mutex = false
-            }, iterationalrate)
+        if (data.event.currentTarget) {
+            let response = data.event.currentTarget.response
+            let parts = this.settupLines(response)
+            this.setState({ downloadProgress: parts })
+        }
     }
 
     shouldComponentUpdate(nextProps, nextState) { // TODO
         // Return true if component should update, false otherwise
         if (nextState.state !== this.state) {
-           
+
             return true
         } else {
             return false
         }
-        
+
     }
 
     settupLines = (response) => {
-        
+
         const lines = response.split('data: ')
         if (!lines) return
         lines.pop()
         const parts = lines.map((json) => {
             try {
-              const parse = JSON.parse(json);
-              if (parse) {
-                const part = parse.choices[0].delta.content;
-                return part.replace(/^\n{2}/, '');
-              }
-            } catch (error) {}
+                const parse = JSON.parse(json);
+                if (parse) {
+                    const part = parse.choices[0].delta.content;
+                    return part.replace(/^\n{2}/, '');
+                }
+            } catch (error) { }
             return null;
         }).filter((part) => part !== null)
         return parts;
@@ -167,10 +166,10 @@ export default class ChatScreen extends Component {
                 transformResponse: this.transformResponse,
                 headers: {
                     'Content-Type': 'application/json',
-                    'Authorization': 'Bearer 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'
+                    'Authorization': `Bearer ${token}`
                 },
                 responseType: 'text',
-                onDownloadProgress: this.throttledOnDownloadProgress,
+                onDownloadProgress: rateLimeter(this.OnDownloadProgress),
                 signal: this.signal,
                 error: ''
             })
@@ -196,11 +195,10 @@ export default class ChatScreen extends Component {
             prompt: '',
             isRequesting: false,
             userScrollUp: false,
-            rate: rate
         })
 
-        mutex = false;
-        iterationalrate = rate
+        mutex = false
+        rateLimeterDynamical = rateLimeterStart
     };
 
     componentDidUpdate(prevProps, prevState) {
@@ -218,7 +216,6 @@ export default class ChatScreen extends Component {
                     onScroll={this.handleScroll}
                 >
                     <View className="pt-16 pb-[80px] mt-2 px-5">
-                        <Text className="text-white">{this.state.rate}</Text>
                         {this.state.history.map((item, index) => (
                             <View key={index}
                                 className={`flex flex-row 
