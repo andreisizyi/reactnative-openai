@@ -35,7 +35,7 @@ export default class HeaderChat extends Component {
         const title = this.title();
 
         return ([
-            <View key="header-bar" className="absolute h-14 w-full py-2 top-0 flex flex-row items-center justify-between bg-slate-900 ">
+            <View key="header-bar" className="h-14 w-full py-2 top-0 flex flex-row items-center justify-between bg-slate-900 ">
                 <View className="flex flex-row gap-4 items-center">
                     <Pressable
                         className="w-12 h-12 flex justify-center items-center rounded-full active:opacity-50"

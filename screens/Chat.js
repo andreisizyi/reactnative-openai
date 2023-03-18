@@ -12,6 +12,7 @@ import Ionicons from '@expo/vector-icons/Ionicons'
 
 var test = 0
 
+// Helpers
 import RateLimeter from '../utils/helpers/RateLimiter'
 
 const token = "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"
@@ -75,7 +76,7 @@ export default class ChatScreen extends Component {
 
     // throttle(() => {}, rate)
     OnDownloadProgress = (data) => {
-        console.log(++test, this.state.downloadProgress?.length, 'kkk');
+        console.log(++test, this.state.downloadProgress?.length);
 
         if (data.event.currentTarget) {
             let response = data.event.currentTarget.response
@@ -84,15 +85,9 @@ export default class ChatScreen extends Component {
         }
     }
 
-    shouldComponentUpdate(nextProps, nextState) { // TODO
-        // Return true if component should update, false otherwise
-        if (nextState.state !== this.state) {
-
-            return true
-        } else {
-            return false
-        }
-
+    shouldComponentUpdate(nextProps, nextState) {
+        if (nextState.state !== this.state) return true
+        return false
     }
 
     settupLines = (response) => {
@@ -201,7 +196,7 @@ export default class ChatScreen extends Component {
                     onContentSizeChange={this.handleContentSizeChange}
                     onScroll={this.handleScroll}
                 >
-                    <View className="pt-16 pb-[80px] mt-2 px-5">
+                    <View className="pb-[80px] mt-2 px-5">
                         {this.state.history.map((item, index) => (
                             <View key={index}
                                 className={`flex flex-row 
