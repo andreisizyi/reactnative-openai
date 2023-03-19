@@ -16,132 +16,123 @@ import RateLimeter from '../utils/helpers/RateLimiter'
 const token = "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"
 
 class ChatScreen extends Component {
+
     constructor(props) {
-        super(props)
-        this.state = {
-            downloadProgress: [],
-            history: [],
-            isRequesting: false
-        }
-
-        this.abortControl = new AbortController()
-        this.signal = this.abortControl.signal
-        
-        DeviceEventEmitter.addListener('chat', (newState) => {
-            this.setState(newState)
-        });
-    }
-
-    // Update all sended states from lower components
-    setUpper = (newState) => {
-        this.setState(newState)
-    }
-
-    promptObjectFunc = (prompt) => {
-        let promptObject = [...this.state.history, { "role": "user", "content": prompt }];
-        return promptObject;
-    }
+		super(props)
+		this.state = {
+			downloadProgress: [],
+			history: [],
+			isRequesting: false
+		}
+		this.abortControl = new AbortController()
+		this.signal = this.abortControl.signal
+		DeviceEventEmitter.addListener('chat', (newState) => {
+			this.setState(newState)
+		});
+	}
 
     OnDownloadProgress = (data) => {
-        //console.log(++test, this.state.downloadProgress?.length);
+		//console.log(++test, this.state.downloadProgress?.length);
+		if (data.event.currentTarget) {
+			let response = data.event.currentTarget.response
+			let parts = this.settupLines(response)
+			this.setState({
+				downloadProgress: parts
+			})
+		}
+	}
 
-        if (data.event.currentTarget) {
-            let response = data.event.currentTarget.response
-            let parts = this.settupLines(response)
-            this.setState({ downloadProgress: parts })
-        }
-    }
+	transformResponse = (response) => { 
+		let array = this.settupLines(response)
+		return array.join('')
+	}
 
-    shouldComponentUpdate(nextProps, nextState) {
-        if (nextState.state !== this.state) return true
-        return false
-    }
+	stopResponse = () => {
+		this.abortControl.abort()
+		this.abortControl = new AbortController()
+		this.signal = this.abortControl.signal
+	}
 
     settupLines = (response) => {
-        const lines = response.split('data: ')
-        if (!lines) return
-        lines.pop()
-        const parts = lines.map((json) => {
-            try {
-                const parse = JSON.parse(json);
-                if (parse) {
-                    const part = parse.choices[0].delta.content;
-                    return part.replace(/^\n{2}/, '');
-                }
-            } catch (error) { }
-            return null;
-        }).filter((part) => part !== null)
-        return parts;
-    }
+		const lines = response.split('data: ')
+		if (!lines) return
+		lines.pop()
+		const parts = lines.map((json) => {
+			try {
+				const parse = JSON.parse(json);
+				if (parse) {
+					const part = parse.choices[0].delta.content;
+					return part.replace(/^\n{2}/, '');
+				}
+			} catch (error) {}
+			return null;
+		}).filter((part) => part !== null)
+		return parts;
+	}
 
-    transformResponse = (response) => {
-        let array = this.settupLines(response)
-        return array.join('')
-    }
-
-    stopResponse = () => {
-        this.abortControl.abort()
-        this.abortControl = new AbortController()
-        this.signal = this.abortControl.signal
-    }
-
-    sendRequest = async (prompt) => {
-
-        // Requesting
-        if (this.state.isRequesting) return
-        this.setState({ isRequesting: true })
-
-        // Prompt
-        let promptObject = this.promptObjectFunc(prompt);
-        this.setState({ history: [...this.state.history, { "role": "user", "content": prompt }] })
-
-        try {
-            const data = {
-                model: 'gpt-3.5-turbo', // 'text-davinci-003'
-                messages: promptObject,
-                stream: true,
-            };
-            const rate = new RateLimeter(30)
-            const response = await axios({
-                method: 'post',
-                url: 'https://api.openai.com/v1/chat/completions',
-                data: data,
-                transformResponse: this.transformResponse,
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`
-                },
-                responseType: 'text',
-                onDownloadProgress: rate.limit(this.OnDownloadProgress),
-                signal: this.signal,
-                error: ''
-            })
-
-            this.setState({
-                history: [...this.state.history, { "role": "system", "content": response.data }],
-            })
-
-        } catch (error) {
-
-            //console.log(error);
-
-            if (this.state.downloadProgress.length > 0) {
-                this.setState({
-                    history: [...this.state.history, { "role": "system", "content": this.state.downloadProgress.join('') }]
-                })
+	sendRequest = async (prompt) => {
+		// Requesting
+		if (this.state.isRequesting) return
+		this.setState({
+			isRequesting: true
+		})
+        // Prompt with history
+        const history = [
+            ...this.state.history, {
+                "role": "user",
+                "content": prompt
             }
-
-        }
-
-        this.setState({
-            downloadProgress: [],
-            isRequesting: false
-        })
-    };
-
-    componentDidUpdate(prevProps, prevState) {
-
-    }
+        ]
+        // Set to state
+        this.setState({ history: history })
+        // Request data
+        const data = {
+            model: 'gpt-3.5-turbo', // 'text-davinci-003'
+            messages: history,
+            stream: true
+        };
+        // New rate limiter
+        const rate = new RateLimeter(30)
+        // Axios request try catch
+		try {
+            // Axios request
+			const response = await axios({
+				method: 'post',
+				url: 'https://api.openai.com/v1/chat/completions',
+				headers: {
+					'Content-Type': 'application/json',
+					'Authorization': `Bearer ${token}`
+				},
+                data: data,
+				responseType: 'text',
+				onDownloadProgress: rate.limit(this.OnDownloadProgress),
+                transformResponse: this.transformResponse,
+				signal: this.signal
+			})
+            // Set full response content
+			this.setState({
+				history: [...this.state.history, {
+					"role": "system",
+					"content": response.data
+				}],
+			})
+		} catch (error) {
+            // On error setup exising download progress
+			if (this.state.downloadProgress.length > 0) {
+				this.setState({
+					history: [...this.state.history, {
+						"role": "system",
+						"content": this.state.downloadProgress.join('')
+					}]
+				})
+			}
+		}
+        // After each request set default values
+		this.setState({
+			downloadProgress: [],
+			isRequesting: false
+		})
+	};
 
     render() {
         return (
@@ -170,4 +161,4 @@ class ChatScreen extends Component {
     }
 }
 
-export default React.memo(ChatScreen);
+export default ChatScreen;

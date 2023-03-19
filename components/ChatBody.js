@@ -88,4 +88,4 @@ class ChatBody extends Component {
     }
 }
 
-export default React.memo(ChatBody);
+export default ChatBody;
