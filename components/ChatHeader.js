@@ -5,9 +5,11 @@ import { Image, Text, View, Pressable } from 'react-native';
 import Ionicons from '@expo/vector-icons/Ionicons';
 
 // Components
-import Menu from './HeaderChatParts/Menu'
+import Menu from './ChatHeaderParts/Menu'
 
-export default class HeaderChat extends Component {
+var test = 0
+
+class HeaderChat extends Component {
 
     constructor(props) {
         super(props);
@@ -32,8 +34,7 @@ export default class HeaderChat extends Component {
     }
 
     render() {
-        const title = this.title();
-
+        const title = this.title(); 
         return ([
             <View key="header-bar" className="h-14 w-full py-2 top-0 flex flex-row items-center justify-between bg-slate-900 ">
                 <View className="flex flex-row gap-4 items-center">
@@ -66,3 +67,5 @@ export default class HeaderChat extends Component {
         ])
     }
 }
+
+export default React.memo(HeaderChat);

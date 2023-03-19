@@ -5,7 +5,7 @@ import { DeviceEventEmitter, Text, View, Pressable } from 'react-native'
 // Fonts
 import Ionicons from '@expo/vector-icons/Ionicons'
 
-export default class ChatScreen extends Component {
+class ChatScreen extends Component {
     constructor(props) {
         super(props)
     }
@@ -44,3 +44,5 @@ export default class ChatScreen extends Component {
         )
     }
 }
+
+export default React.memo(ChatScreen);
