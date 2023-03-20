@@ -47,17 +47,20 @@ class ChatBody extends Component<IChatBodyProps, IChatBodyState> {
     };
 
     handleScroll(event: NativeSyntheticEvent<NativeScrollEvent>): void {
-        const currentOffset = event.nativeEvent.contentOffset.y;
-
-        if (currentOffset < this.state.scrollOffset) {
+        const { contentOffset, layoutMeasurement, contentSize } = event.nativeEvent;
+    
+        if (contentOffset.y < this.state.scrollOffset) {
             this.setState({ userScrollUp: true });
+        } else if (contentOffset.y >= contentSize.height - layoutMeasurement.height) {
+            // If user scrolled to bottom
+            this.setState({ userScrollUp: false });
         }
-
-        this.setState({ scrollOffset: currentOffset });
+    
+        this.setState({ scrollOffset: contentOffset.y });
     }
 
     componentDidUpdate(prevProps: IChatBodyProps): void {
-        // TODO if user scroll to full bottom set this.state.userScrollUp = false
+        // If new request set userScrollUp false
         if (this.props.history !== prevProps.history) {
             this.setState({ userScrollUp: false });
         }
