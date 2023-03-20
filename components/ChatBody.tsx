@@ -1,40 +1,65 @@
 import React, { Component } from 'react'
-import { Text, View, ScrollView } from 'react-native'
-// Components
+import { Text, View, ScrollView, NativeSyntheticEvent, NativeScrollEvent, LayoutChangeEvent, StyleProp, ViewStyle } from 'react-native'
 
-class ChatBody extends Component {
-    constructor(props) {
-        super(props)
+interface IChatHistory {
+    role: string;
+    content: string;
+}
 
-        this.scrollOffset = 0,
-        this.userScrollUp = false
+interface IChatBodyProps {
+    history: IChatHistory[];
+    downloadProgress: string[];
+}
 
-        this.handleScroll = this.handleScroll.bind(this)
-        this.scrollViewRef = React.createRef()
+interface IChatBodyState {
+    scrollOffset: number;
+    scrollViewHeight: number;
+    userScrollUp: boolean;
+}
+
+class ChatBody extends Component<IChatBodyProps, IChatBodyState> {
+    scrollViewRef = React.createRef<ScrollView>();
+
+    constructor(props: IChatBodyProps) {
+        super(props);
+
+        this.state = {
+            scrollOffset: 0,
+            scrollViewHeight: 0,
+            userScrollUp: false,
+        };
+
+        this.handleScroll = this.handleScroll.bind(this);
+        this.handleContentSizeChange = this.handleContentSizeChange.bind(this);
+    }
+
+    handleLayout = (event: LayoutChangeEvent) => {
+        const { height } = event.nativeEvent.layout;
+        this.setState({ scrollViewHeight: height });
     }
 
     // Handler for change content size ScrollView
-    handleContentSizeChange = (contentWidth, contentHeight) => {
-        if (this.userScrollUp) return
-        const scrollViewHeight = this.scrollViewRef.current?.getHeight?.() || 0;
+    handleContentSizeChange(contentWidth: number, contentHeight: number): void {
+        if (this.state.userScrollUp) return;
+        const scrollViewHeight = this.state.scrollViewHeight;
         const contentBottomY = contentHeight - scrollViewHeight;
         this.scrollViewRef.current?.scrollTo?.({ y: contentBottomY, animated: true });
     };
 
-    handleScroll(event) {
+    handleScroll(event: NativeSyntheticEvent<NativeScrollEvent>): void {
         const currentOffset = event.nativeEvent.contentOffset.y;
 
-        if (currentOffset < this.scrollOffset) {
-            this.userScrollUp = true
+        if (currentOffset < this.state.scrollOffset) {
+            this.setState({ userScrollUp: true });
         }
-        
-        this.scrollOffset = currentOffset
+
+        this.setState({ scrollOffset: currentOffset });
     }
 
-    componentDidUpdate(prevProps, prevState) {
-        // TODO if user scroll to full bottom set this.userScrollUp = false
+    componentDidUpdate(prevProps: IChatBodyProps): void {
+        // TODO if user scroll to full bottom set this.state.userScrollUp = false
         if (this.props.history !== prevProps.history) {
-            this.userScrollUp = false
+            this.setState({ userScrollUp: false });
         }
     }
 
@@ -45,6 +70,7 @@ class ChatBody extends Component {
                 ref={this.scrollViewRef}
                 onContentSizeChange={this.handleContentSizeChange}
                 onScroll={this.handleScroll}
+                onLayout={this.handleLayout}
             >
                 <View className="pb-[80px] mt-2 px-5">
                     {this.props.history.map((item, index) => (
