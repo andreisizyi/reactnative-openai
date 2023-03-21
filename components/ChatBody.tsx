@@ -96,7 +96,7 @@ class ChatBody extends Component<IChatBodyProps, IChatBodyState> {
 
                     {this.props.downloadProgress.length === 0 && this.props.isRequesting &&
                         <View className="flex flex-row justify-start">
-                            <Text className="my-2 px-4 py-3 text-white rounded-3xl bg-white/10">
+                            <Text className="my-2 rounded-t-3xl px-4 py-3 text-white rounded-br-3xl bg-white/10">
                                 Typing...
                             </Text>
                         </View>

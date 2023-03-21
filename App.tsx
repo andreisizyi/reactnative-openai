@@ -10,9 +10,13 @@ import ChatScreen from './screens/Chat'
 // SplashScreen
 SplashScreen.preventAutoHideAsync()
 
-class App extends Component {
+interface AppState {
+  appIsReady: number
+}
 
-  constructor(props) {
+class App extends Component<{}, AppState> {
+
+  constructor(props: {}) {
     super(props);
     this.state = {
       appIsReady: 0
