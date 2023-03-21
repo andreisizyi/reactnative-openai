@@ -9,6 +9,7 @@ interface IChatHistory {
 interface IChatBodyProps {
     history: IChatHistory[];
     downloadProgress: string[];
+    isRequesting: boolean;
 }
 
 interface IChatBodyState {
@@ -92,6 +93,15 @@ class ChatBody extends Component<IChatBodyProps, IChatBodyState> {
                             </Text>
                         </View>
                     ))}
+
+                    {this.props.downloadProgress.length === 0 && this.props.isRequesting &&
+                        <View className="flex flex-row justify-start">
+                            <Text className="my-2 px-4 py-3 text-white rounded-3xl bg-white/10">
+                                Typing...
+                            </Text>
+                        </View>
+                    }
+                    
                     {this.props.downloadProgress.length > 0 &&
                         <View className="flex flex-row justify-start">
                             <Text selectable={false}

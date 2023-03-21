@@ -1,12 +1,16 @@
 class RateLimiter {
+    start: number;
+    state: boolean;
+    dynamical: number;
+
     constructor(start = 30) {
         this.start = start;
         this.state = false;
         this.dynamical = this.start;
     }
 
-    limit(func) {
-        return (...args) => {
+    limit(func: Function) {
+        return (...args: any) => {
             if (this.state) return;
             this.state = true;
 
@@ -19,8 +23,8 @@ class RateLimiter {
 
             return result;
         };
+
     }
 }
-
 
 export default RateLimiter;

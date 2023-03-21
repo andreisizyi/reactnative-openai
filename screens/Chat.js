@@ -88,7 +88,7 @@ class ChatScreen extends Component {
         // Request data
         const data = {
             model: 'gpt-3.5-turbo', // 'text-davinci-003'
-            messages: history,
+            messages: history.slice(-7), // History only 7 last messages
             stream: true
         };
         // New rate limiter
@@ -148,6 +148,7 @@ class ChatScreen extends Component {
                 <Body
                     history={this.state.history}
                     downloadProgress={this.state.downloadProgress}
+					isRequesting={this.state.isRequesting}
                 />
 
                 <Prompt
