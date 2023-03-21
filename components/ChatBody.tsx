@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { Text, View, ScrollView, NativeSyntheticEvent, NativeScrollEvent, LayoutChangeEvent, StyleProp, ViewStyle } from 'react-native'
+import { Text, View, ScrollView, NativeSyntheticEvent, NativeScrollEvent, LayoutChangeEvent } from 'react-native'
 
 interface IChatHistory {
     role: string;
@@ -48,14 +48,14 @@ class ChatBody extends Component<IChatBodyProps, IChatBodyState> {
 
     handleScroll(event: NativeSyntheticEvent<NativeScrollEvent>): void {
         const { contentOffset, layoutMeasurement, contentSize } = event.nativeEvent;
-    
+
         if (contentOffset.y < this.state.scrollOffset) {
             this.setState({ userScrollUp: true });
         } else if (contentOffset.y >= contentSize.height - layoutMeasurement.height) {
             // If user scrolled to bottom
             this.setState({ userScrollUp: false });
         }
-    
+
         this.setState({ scrollOffset: contentOffset.y });
     }
 
@@ -82,12 +82,12 @@ class ChatBody extends Component<IChatBodyProps, IChatBodyState> {
                             ${item.role === 'system' ? 'justify-start' : 'justify-end'}`}>
                             <Text selectable={true}
                                 className={`mt-2 mb-5 rounded-t-3xl px-4 py-3 text-white 
-                              ${item.role === 'system' ? 'rounded-br-3xl bg-white/10' : 'rounded-bl-3xl bg-teal-500/70'}`}
+                                    ${item.role === 'system' ? 'rounded-br-3xl bg-white/10' : 'rounded-bl-3xl bg-teal-500/70'}`}
                             >
                                 {item.content}
                             </Text>
                             <Text className={`absolute bottom-0 text-xs
-                                        ${item.role === 'system' ? 'text-slate-500 left-0' : 'text-teal-500 opacity-70 right-0'}`}>
+                                    ${item.role === 'system' ? 'text-slate-500 left-0' : 'text-teal-500 opacity-70 right-0'}`}>
                                 {item.role}
                             </Text>
                         </View>
@@ -105,11 +105,13 @@ class ChatBody extends Component<IChatBodyProps, IChatBodyState> {
                             </Text>
                         </View>
                     }
+
                     {this.props.history.length === 0 &&
                         <Text className="self-center my-2 px-4 py-3 text-white rounded-3xl bg-white/10">
                             Send message to start conversation
                         </Text>
                     }
+
                 </View>
             </ScrollView>
 
