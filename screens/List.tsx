@@ -2,18 +2,12 @@ import React, { Component } from 'react'
 import { StatusBar, SafeAreaView, Text, View, Pressable, FlatList } from 'react-native'
 
 
-var test = 0
-
 // Helpers
-import RateLimeter from '../utils/helpers/RateLimiter'
 
 const token: string = "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"
 
-
-import { NavigationScreenProp } from 'react-navigation';
-
 interface Props {
-    navigation: NavigationScreenProp<any, any>;
+    navigation: any;
 }
 
 interface ListItem {
@@ -25,7 +19,7 @@ interface State {
     data: ListItem[];
 }
 
-class ChatScreen extends Component<Props, State> {
+class ListScreen extends Component<Props, State> {
 
     private abortControl: AbortController;
     private signal: AbortSignal;
@@ -75,4 +69,4 @@ class ChatScreen extends Component<Props, State> {
     }
 }
 
-export default ChatScreen;
+export default ListScreen;
