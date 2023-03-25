@@ -9,6 +9,7 @@ import Menu from './ChatHeaderParts/Menu';
 
 type Props = {
   history: { content: string }[];
+  navigation: any;
 };
 
 type State = {
@@ -41,12 +42,14 @@ class HeaderChat extends Component<Props, State> {
   render() {
     const title = this.title();
     return [
-      <View key="header-bar" className="h-14 w-full py-2 top-0 flex flex-row items-center justify-between bg-slate-900 ">
+      <View key="header-bar" className="h-14 w-full py-2 top-0 flex flex-row items-center justify-between bg-slate-900">
         <View className="flex flex-row gap-4 items-center">
-          <Pressable className="w-12 h-12 flex justify-center items-center rounded-full active:opacity-50">
+          <Pressable
+            onPress={() => this.props.navigation.navigate('List')}
+            className="w-12 h-12 flex justify-center items-center rounded-full active:opacity-50">
             <Ionicons name="ios-chevron-back" size={22} color="white" />
           </Pressable>
-            {/* <Image
+          {/* <Image
                 className="w-8 h-8 rounded-full"
                 source={require('../assets/icon.png')}
             /> */}
