@@ -8,8 +8,6 @@ import Header from '../components/ChatHeader'
 import Body from '../components/ChatBody'
 import Prompt from '../components/ChatPrompt'
 
-import { NavigationScreenProp } from 'react-navigation';
-
 var test = 0
 
 // Helpers
@@ -17,9 +15,7 @@ import RateLimeter from '../utils/helpers/RateLimiter'
 
 const token: string = "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"
 
-interface Props {
-    navigation: NavigationScreenProp<any, any>;
-}
+interface Props {}
 
 interface State {
     downloadProgress: string[],
@@ -162,7 +158,6 @@ class ChatScreen extends Component<Props, State> {
 
                 <Header
                     history={this.state.history}
-                    navigation={this.props.navigation}
                 />
 
                 <Body
