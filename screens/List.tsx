@@ -21,9 +21,6 @@ interface State {
 
 class ListScreen extends Component<Props, State> {
 
-    private abortControl: AbortController;
-    private signal: AbortSignal;
-
     constructor(props: Props) {
         super(props)
         this.state = {
