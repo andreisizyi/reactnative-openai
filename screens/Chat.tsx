@@ -28,6 +28,10 @@ interface Message {
     content: string
 }
 
+interface Props {
+    navigation: any;
+}
+
 class ChatScreen extends Component<Props, State> {
 
     private abortControl: AbortController;
@@ -157,6 +161,7 @@ class ChatScreen extends Component<Props, State> {
                 {/* <LinearGradient className="absolute h-full w-full" start={[-0.3, 0.2]} end={[0.5, 0.8]} colors={['rgba(15,23,42,0.1)', 'rgba(255,138,92,0.05)']} /> */}
 
                 <Header
+                    navigation={this.props.navigation}
                     history={this.state.history}
                 />
 
