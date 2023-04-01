@@ -35,7 +35,7 @@ class DB {
     }
 
     private initDB() {
-        this.connection = SQLite.openDatabase('databaseq1.db');
+        this.connection = SQLite.openDatabase('TrueDataBase2.db');
         this.connection.transaction((tx: any) => {
             tx.executeSql(
                 'CREATE TABLE IF NOT EXISTS chats (\
@@ -57,8 +57,8 @@ class DB {
                 'CREATE TABLE IF NOT EXISTS messages (\
           id INTEGER PRIMARY KEY AUTOINCREMENT,\
           chatId INTEGER,\
-          name TEXT,\
-          sender TEXT\
+          content TEXT,\
+          role TEXT\
         );',
                 [],
                 (tx: any, results: any) => {
@@ -88,18 +88,51 @@ class DB {
         });
     }
 
-    newChat() {
+    newChat(text: string) {
         this.connection.transaction((tx: any) => {
             tx.executeSql(
-                'INSERT INTO chats (name) VALUES (?)',
-                ['example_first_chat'],
+                'INSERT OR IGNORE INTO chats (name) VALUES (?)',
+                [text],
                 (tx: any, results: any) => {
                     console.log('Chat added successfully');
+                    // Need return ID // TODO
                 },
                 (tx: any, error: any) => {
                     console.log('Error while adding chat:', error);
                 },
             );
+        });
+    }
+
+    newMessage(text: string, role: string) {
+        this.connection.transaction((tx: any) => {
+            tx.executeSql(
+                'INSERT INTO messages (content, role, chatId) VALUES (?, ?, ?)',
+                [text, role, global.currentChat],
+                (tx: any, results: any) => {
+                    console.log('Message added successfully');
+                },
+                (tx: any, error: any) => {
+                    console.log('Error while message chat:', error);
+                },
+            );
+        });
+    }
+
+    getMessagesOfChat() {
+        return new Promise((resolve, reject) => {
+            this.connection.transaction((tx: any) => {
+                tx.executeSql(
+                    `SELECT content, role FROM messages WHERE chatId = ${global.currentChat}`,
+                    null,
+                    (tx: any, results: any) => {
+                        resolve(results.rows._array);
+                    },
+                    (tx: any, error: any) => {
+                        resolve([]);
+                    },
+                );
+            });
         });
     }
 
@@ -113,7 +146,7 @@ class DB {
                         resolve(results.rows._array);
                     },
                     (tx: any, error: any) => {
-                        reject(error);
+                        resolve([]);
                     },
                 );
             });

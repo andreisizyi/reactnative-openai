@@ -12,6 +12,7 @@ var test = 0
 
 // Helpers
 import RateLimeter from '../utils/helpers/RateLimiter'
+import DB from '../utils/helpers/DB'
 
 const token: string = "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"
 
@@ -34,8 +35,9 @@ interface Props {
 
 class ChatScreen extends Component<Props, State> {
 
-    private abortControl: AbortController;
-    private signal: AbortSignal;
+    private db: any
+    private abortControl: AbortController
+    private signal: AbortSignal
 
     constructor(props: Props) {
         super(props)
@@ -49,6 +51,16 @@ class ChatScreen extends Component<Props, State> {
         DeviceEventEmitter.addListener('chat', (newState) => {
             this.setState(newState)
         });
+        this.dataInit()
+    }
+
+    async dataInit() {
+        this.db = DB.getInstance()
+        const messages = await this.db.getMessagesOfChat()
+        console.log(messages);
+        this.setState({
+            history: messages
+        })
     }
 
     OnDownloadProgress = (data: any) => {
@@ -103,6 +115,8 @@ class ChatScreen extends Component<Props, State> {
                 "content": prompt
             }
         ]
+        this.db.newChat(prompt)
+        this.db.newMessage(prompt, "user")
         // Set to state
         this.setState({ history: history })
         // Request data
@@ -136,6 +150,7 @@ class ChatScreen extends Component<Props, State> {
                     "content": response.data
                 }],
             })
+            this.db.newMessage(response.data, "system")
         } catch (error) {
             // On error setup exising download progress
             if (this.state.downloadProgress.length > 0) {
@@ -145,6 +160,7 @@ class ChatScreen extends Component<Props, State> {
                         "content": this.state.downloadProgress.join('')
                     }]
                 })
+                this.db.newMessage(this.state.downloadProgress.join(''), "system")
             }
         }
         // After each request set default values
