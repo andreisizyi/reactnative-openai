@@ -135,7 +135,7 @@ class ListScreen extends Component<Props, State> {
                     keyExtractor={(item) => item.id.toString() as string}
                 />
                 <Pressable
-                    className="absolute bottom-1 w-full flex flex-row justify-center items-center"
+                    className="absolute bottom-0.5 w-full flex flex-row justify-center items-center"
                     onPress={() => {
                         global.currentChat = 0;
                         this.props.navigation.navigate('Chat')
