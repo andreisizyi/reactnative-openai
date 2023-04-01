@@ -23,19 +23,19 @@ class DB {
     private connection: any;
 
     constructor(start = 30) {
-        
+
         this.initDB();
     }
 
     public static getInstance(): DB {
         if (!DB.instance) {
-          DB.instance = new DB();
+            DB.instance = new DB();
         }
         return DB.instance;
     }
 
     private initDB() {
-        this.connection = SQLite.openDatabase('TrueDataBase2.db');
+        this.connection = SQLite.openDatabase('TrueDataBase7.db');
         this.connection.transaction((tx: any) => {
             tx.executeSql(
                 'CREATE TABLE IF NOT EXISTS chats (\
@@ -89,26 +89,29 @@ class DB {
     }
 
     newChat(text: string) {
-        this.connection.transaction((tx: any) => {
-            tx.executeSql(
-                'INSERT OR IGNORE INTO chats (name) VALUES (?)',
-                [text],
-                (tx: any, results: any) => {
-                    console.log('Chat added successfully');
-                    // Need return ID // TODO
-                },
-                (tx: any, error: any) => {
-                    console.log('Error while adding chat:', error);
-                },
-            );
+        return new Promise((resolve, reject) => {
+            this.connection.transaction((tx: any) => {
+                tx.executeSql(
+                    'INSERT OR IGNORE INTO chats (name) VALUES (?)',
+                    [text],
+                    (tx: any, results: any) => {
+                        console.log('Chat added successfully with id ' + results.insertId);
+                        global.currentChat = results.insertId
+                        resolve(results.insertId);
+                    },
+                    (tx: any, error: any) => {
+                        resolve(global.currentChat)
+                    },
+                );
+            });
         });
     }
 
-    newMessage(text: string, role: string) {
+    newMessage(text: string, role: string, chatId: number) {
         this.connection.transaction((tx: any) => {
             tx.executeSql(
                 'INSERT INTO messages (content, role, chatId) VALUES (?, ?, ?)',
-                [text, role, global.currentChat],
+                [text, role, chatId],
                 (tx: any, results: any) => {
                     console.log('Message added successfully');
                 },
@@ -119,14 +122,16 @@ class DB {
         });
     }
 
-    getMessagesOfChat() {
+    getMessagesOfChat(id: number) {
+        if (id === 0) return []
         return new Promise((resolve, reject) => {
             this.connection.transaction((tx: any) => {
                 tx.executeSql(
-                    `SELECT content, role FROM messages WHERE chatId = ${global.currentChat}`,
+                    `SELECT content, role, chatId FROM messages WHERE chatId = ${id}`,
                     null,
                     (tx: any, results: any) => {
-                        resolve(results.rows._array);
+                        console.log(results.rows._array)
+                        resolve(results.rows._array)
                     },
                     (tx: any, error: any) => {
                         resolve([]);
@@ -136,7 +141,7 @@ class DB {
         });
     }
 
-    async getChats() {
+    getChats() {
         return new Promise((resolve, reject) => {
             this.connection.transaction((tx: any) => {
                 tx.executeSql(
@@ -151,6 +156,36 @@ class DB {
                 );
             });
         });
+    }
+
+    removeChat(id: number) {
+        return new Promise((resolve, reject) => {
+            this.connection.transaction((tx: any) => {
+                tx.executeSql(
+                    `DELETE FROM chats WHERE id = ${id}`,
+                    null,
+                    (tx: any, results: any) => {
+                        console.log('Chat deleted');
+                    },
+                    (tx: any, error: any) => {
+
+                    },
+                );
+            });
+
+            this.connection.transaction((tx: any) => {
+                tx.executeSql(
+                    `DELETE FROM mesages WHERE chatId = ${id}`,
+                    null,
+                    (tx: any, results: any) => {
+                        console.log('Chat deleted');
+                    },
+                    (tx: any, error: any) => {
+
+                    },
+                );
+            });
+        })
     }
 
 }

@@ -30,22 +30,6 @@ class ListScreen extends Component<Props, State> {
 
     constructor(props: Props) {
         super(props)
-        this.dataInit();
-        // this.state = {
-        //     data: [
-        //         { id: '1', name: 'React Native, a framework for building apps using React' },
-        //         { id: '2', name: 'JavaScript' },
-        //         { id: '3', name: 'TypeScript, a superset of JavaScript that adds optional static typing' },
-        //         { id: '4', name: 'Firebase, a mobile and web application development platform' },
-        //         { id: '5', name: 'React Navigation, a routing and navigation library for React Native' },
-        //         { id: '6', name: 'Redux' },
-        //         { id: '7', name: 'GraphQL, a query language for APIs' },
-        //         { id: '8', name: 'Node.js, an open-source, cross-platform JavaScript runtime environment' },
-        //         { id: '9', name: 'MongoDB, a cross-platform document-oriented database program' },
-        //         { id: '10', name: 'Expo, a free and open-source platform for building native apps' },
-        //         { id: '11', name: 'REST API, a standard for building web services using HTTP requests' },
-        //     ],
-        // }
     }
 
     async dataInit() {
@@ -57,6 +41,17 @@ class ListScreen extends Component<Props, State> {
             data: chats
         })
     }
+    componentDidMount() {
+        this.props.navigation.addListener('focus', this.onScreenFocus);
+    }
+    
+    componentWillUnmount() {
+        this.props.navigation.removeListener('focus', this.onScreenFocus);
+    }
+    
+    onScreenFocus = () => {
+        this.dataInit();
+    };
 
     renderItem = ({ item }: { item: ListItem }) => (
         // <Pressable onPress={() => console.log(`Pressed ${item.title}`)}>
@@ -70,6 +65,15 @@ class ListScreen extends Component<Props, State> {
                 }}
             >
                 <Text className="leading-5 my-2 px-4 py-3 text-white rounded-3xl bg-white/10">{item.name}</Text>
+            </Pressable>
+
+            <Pressable
+                onPress={async () => { 
+                    await this.db.removeChat(item.id)
+                    
+                }}
+            >
+                <Text className="leading-5 my-2 px-4 py-3 text-white rounded-3xl bg-white/10">Delete</Text>
             </Pressable>
         </View>
     );

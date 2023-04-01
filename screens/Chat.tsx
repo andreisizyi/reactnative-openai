@@ -56,7 +56,7 @@ class ChatScreen extends Component<Props, State> {
 
     async dataInit() {
         this.db = DB.getInstance()
-        const messages = await this.db.getMessagesOfChat()
+        const messages = await this.db.getMessagesOfChat(global.currentChat)
         console.log(messages);
         this.setState({
             history: messages
@@ -115,8 +115,9 @@ class ChatScreen extends Component<Props, State> {
                 "content": prompt
             }
         ]
-        this.db.newChat(prompt)
-        this.db.newMessage(prompt, "user")
+        let chatId = await this.db.newChat(prompt)
+        this.db.newMessage(prompt, "user", chatId)
+        
         // Set to state
         this.setState({ history: history })
         // Request data
@@ -150,7 +151,7 @@ class ChatScreen extends Component<Props, State> {
                     "content": response.data
                 }],
             })
-            this.db.newMessage(response.data, "system")
+            this.db.newMessage(response.data, "system", global.currentChat)
         } catch (error) {
             // On error setup exising download progress
             if (this.state.downloadProgress.length > 0) {
@@ -160,7 +161,7 @@ class ChatScreen extends Component<Props, State> {
                         "content": this.state.downloadProgress.join('')
                     }]
                 })
-                this.db.newMessage(this.state.downloadProgress.join(''), "system")
+                this.db.newMessage(this.state.downloadProgress.join(''), "system", global.currentChat)
             }
         }
         // After each request set default values
