@@ -162,29 +162,31 @@ class DB {
         return new Promise((resolve, reject) => {
             this.connection.transaction((tx: any) => {
                 tx.executeSql(
+                    `DELETE FROM messages WHERE chatId = ${id}`,
+                    null,
+                    (tx: any, results: any) => {
+                        resolve('ok');
+                        console.log('Messages deleted');
+                    },
+                    (tx: any, error: any) => {
+                        resolve('ok');
+                    },
+                );
+            });
+            this.connection.transaction((tx: any) => {
+                tx.executeSql(
                     `DELETE FROM chats WHERE id = ${id}`,
                     null,
                     (tx: any, results: any) => {
+                        resolve('ok');
                         console.log('Chat deleted');
                     },
                     (tx: any, error: any) => {
-
+                        resolve('ok');
                     },
                 );
             });
 
-            this.connection.transaction((tx: any) => {
-                tx.executeSql(
-                    `DELETE FROM mesages WHERE chatId = ${id}`,
-                    null,
-                    (tx: any, results: any) => {
-                        console.log('Chat deleted');
-                    },
-                    (tx: any, error: any) => {
-
-                    },
-                );
-            });
         })
     }
 

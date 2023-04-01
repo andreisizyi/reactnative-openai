@@ -31,13 +31,13 @@ class HeaderChat extends Component<Props, State> {
   };
 
   // Update all sended states from lower components
-  setUpper = (newState: State) => {
-    this.setState(newState);
-  };
+  // setUpper = (newState: State) => {
+  //   this.setState(newState);
+  // };
 
-  toggleMenu = () => {
-    this.setState({ menuOpen: !this.state.menuOpen });
-  };
+  // toggleMenu = () => {
+  //   this.setState({ menuOpen: !this.state.menuOpen });
+  // };
 
   render() {
     const title = this.title();
@@ -57,14 +57,14 @@ class HeaderChat extends Component<Props, State> {
             <Text className="text-base text-white">{title} {global.currentChat}</Text>
           </View>
         </View>
-        <Pressable
+        {/* <Pressable
           onPress={this.toggleMenu}
           className="w-12 h-12 flex justify-center items-center rounded-full active:opacity-50"
         >
           <Ionicons name="ellipsis-vertical" size={22} color="white" />
-        </Pressable>
+        </Pressable> */}
       </View>,
-      <Menu key="header-menu" menuOpen={this.state.menuOpen} setUpper={this.setUpper} />,
+      // <Menu key="header-menu" menuOpen={this.state.menuOpen} setUpper={this.setUpper} />,
     ];
   }
 }

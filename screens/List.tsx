@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { StatusBar, SafeAreaView, Text, View, Pressable, FlatList } from 'react-native'
+import { StatusBar, SafeAreaView, Text, View, Pressable, FlatList, Alert } from 'react-native'
 import Ionicons from '@expo/vector-icons/Ionicons';
 
 // Helpers
@@ -44,13 +44,36 @@ class ListScreen extends Component<Props, State> {
     componentDidMount() {
         this.props.navigation.addListener('focus', this.onScreenFocus);
     }
-    
+
     componentWillUnmount() {
         this.props.navigation.removeListener('focus', this.onScreenFocus);
     }
-    
+
     onScreenFocus = () => {
         this.dataInit();
+    };
+
+    showAlert = (id: string|number) => {
+        Alert.alert(
+            'Подтверждение удаления', // Заголовок
+            'Вы уверены, что хотите удалить этот элемент?', // Сообщение
+            [
+                {
+                    text: 'Отмена',
+                    onPress: () => console.log('Отмена удаления'),
+                    style: 'cancel',
+                },
+                {
+                    text: 'Удалить',
+                    onPress: () => {
+                        this.db.removeChat(id)
+                        this.dataInit()
+                    },
+                    style: 'destructive',
+                },
+            ],
+            { cancelable: false }
+        );
     };
 
     renderItem = ({ item }: { item: ListItem }) => (
@@ -59,21 +82,13 @@ class ListScreen extends Component<Props, State> {
         // </Pressable>
         <View className="flex flex-row justify-start px-5 py-1">
             <Pressable
-                onPress={() => { 
+                onPress={() => {
                     global.currentChat = item.id;
                     this.props.navigation.navigate('Chat')
                 }}
+                onLongPress={() => this.showAlert(item.id)}
             >
                 <Text className="leading-5 my-2 px-4 py-3 text-white rounded-3xl bg-white/10">{item.name}</Text>
-            </Pressable>
-
-            <Pressable
-                onPress={async () => { 
-                    await this.db.removeChat(item.id)
-                    
-                }}
-            >
-                <Text className="leading-5 my-2 px-4 py-3 text-white rounded-3xl bg-white/10">Delete</Text>
             </Pressable>
         </View>
     );
@@ -92,7 +107,7 @@ class ListScreen extends Component<Props, State> {
                 />
                 <Pressable
                     className="absolute bottom-1 w-full flex flex-row justify-center items-center"
-                    onPress={() => { 
+                    onPress={() => {
                         global.currentChat = 0;
                         this.props.navigation.navigate('Chat')
                     }}

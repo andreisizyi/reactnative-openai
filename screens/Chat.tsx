@@ -63,6 +63,10 @@ class ChatScreen extends Component<Props, State> {
         })
     }
 
+    componentWillUnmount() {
+        this.stopResponse
+    }
+
     OnDownloadProgress = (data: any) => {
         //console.log(++test, this.state.downloadProgress?.length);
         if (data.event.currentTarget) {
