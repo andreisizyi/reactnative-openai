@@ -1,5 +1,5 @@
 import React, { Component, ReactNode } from 'react';
-import { Animated, Text, View, TextInput, Pressable } from 'react-native';
+import { Animated, Text, TextInput, Pressable } from 'react-native';
 import Ionicons from '@expo/vector-icons/Ionicons';
 
 type ChatRequestProps = {

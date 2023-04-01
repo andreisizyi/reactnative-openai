@@ -1,6 +1,7 @@
 import React, { Component } from 'react'
 import { DeviceEventEmitter, StatusBar, SafeAreaView, Text, View, Pressable, FlatList, Alert } from 'react-native'
 import Ionicons from '@expo/vector-icons/Ionicons';
+import { NavigationProp } from '@react-navigation/native';
 
 // Helpers
 import DB from '../utils/helpers/DB'
@@ -11,11 +12,11 @@ import Header from '../components/ListHeader'
 const token: string = "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"
 
 interface Props {
-    navigation: any;
+    navigation: NavigationProp<Record<string, object>>;
 }
 
 interface ListItem {
-    id: string;
+    id: number;
     name: string;
 }
 
@@ -25,18 +26,37 @@ interface State {
 
 class ListScreen extends Component<Props, State> {
 
-    db: DB
-    data: ListItem[]
+    private db: DB
 
     constructor(props: Props) {
         super(props)
+
         this.state = {
             data: []
         }
-
+        
         DeviceEventEmitter.addListener('deleteAll', () => {
-            this.db.removeAllChats()
-            this.dataInit();
+            Alert.alert(
+                'Confirmation of deletion',
+                'Are you sure you want to delete all chats history?',
+                [
+                    {
+                        text: 'Cancel',
+                        onPress: () => console.log('Deletion cancelled'),
+                        style: 'cancel',
+                    },
+                    {
+                        text: 'Delete',
+                        onPress: () => {
+                            this.db.removeAllChats()
+                            this.dataInit();
+                        },
+                        style: 'destructive',
+                    },
+                ],
+                { cancelable: false }
+            );
+            
         });
     }
 
@@ -44,10 +64,7 @@ class ListScreen extends Component<Props, State> {
         this.db = DB.getInstance()
         const chats = await this.db.getChats();
         console.log(chats)
-        this.data = chats;
-        this.setState({
-            data: chats
-        })
+        this.setState({ data: chats })
     }
 
     componentDidMount() {
@@ -62,7 +79,7 @@ class ListScreen extends Component<Props, State> {
         this.dataInit();
     };
 
-    showAlert = (id: string | number) => {
+    showAlert = (id: number) => {
         Alert.alert(
             'Confirmation of deletion',
             'Are you sure you want to delete this chat?',
@@ -98,6 +115,7 @@ class ListScreen extends Component<Props, State> {
             </Pressable>
         </View>
     );
+    
     render() {
         return (
             <SafeAreaView className="flex-1 bg-slate-800">
@@ -105,16 +123,16 @@ class ListScreen extends Component<Props, State> {
                 <Header
                     navigation={this.props.navigation}
                 />
-                {!this.data?.length &&
+                {!this.state.data?.length &&
                     <Text className="self-center my-4 px-4 py-3 text-white rounded-3xl bg-white/10">
                         History is empty
                     </Text>
                 }
                 <FlatList
                     className="pt-2 pb-7"
-                    data={this.data}
+                    data={this.state.data}
                     renderItem={this.renderItem}
-                    keyExtractor={(item) => item.id}
+                    keyExtractor={(item) => item.id.toString() as string}
                 />
                 <Pressable
                     className="absolute bottom-1 w-full flex flex-row justify-center items-center"

@@ -1,14 +1,12 @@
 import React, { Component } from 'react'
-import { DeviceEventEmitter, StatusBar, SafeAreaView, Text, View, TextInput, Pressable, ScrollView } from 'react-native'
+import { StatusBar, SafeAreaView } from 'react-native'
 import axios, { AxiosResponse } from 'axios'
-import { LinearGradient } from 'expo-linear-gradient'
+import { NavigationProp } from '@react-navigation/native';
 
 // Components
 import Header from '../components/ChatHeader'
 import Body from '../components/ChatBody'
 import Prompt from '../components/ChatPrompt'
-
-var test = 0
 
 // Helpers
 import RateLimeter from '../utils/helpers/RateLimiter'
@@ -30,12 +28,12 @@ interface Message {
 }
 
 interface Props {
-    navigation: any;
+    navigation: NavigationProp<Record<string, object>>;
 }
 
 class ChatScreen extends Component<Props, State> {
 
-    private db: any
+    private db: DB
     private abortControl: AbortController
     private signal: AbortSignal
 
@@ -48,9 +46,6 @@ class ChatScreen extends Component<Props, State> {
         }
         this.abortControl = new AbortController()
         this.signal = this.abortControl.signal
-        // DeviceEventEmitter.addListener('chat', (newState) => {
-        //     this.setState(newState)
-        // });
     }
 
     async dataInit() {
@@ -71,7 +66,6 @@ class ChatScreen extends Component<Props, State> {
     }
 
     OnDownloadProgress = (data: any) => {
-        //console.log(++test, this.state.downloadProgress?.length);
         if (data.event.currentTarget) {
             let response = data.event.currentTarget.response
             let parts = this.settupLines(response)
@@ -136,6 +130,7 @@ class ChatScreen extends Component<Props, State> {
         // New rate limiter
         const rate = new RateLimeter(30)
         // Axios request try catch
+        let message : string;
         try {
             // Axios request
             const response: AxiosResponse<string> = await axios({
@@ -151,38 +146,37 @@ class ChatScreen extends Component<Props, State> {
                 transformResponse: this.transformResponse,
                 signal: this.signal
             })
-            // Set full response content
-            this.db.newMessage(response.data, "system", chatId)
-            this.setState({
-                history: [...this.state.history, {
-                    "role": "system",
-                    "content": response.data
-                }],
-            })
+            message = response.data
         } catch (error) {
             // On error setup exising download progress
             if (this.state.downloadProgress.length > 0) {
-                this.db.newMessage(this.state.downloadProgress.join(''), "system", chatId)
-                this.setState({
-                    history: [...this.state.history, {
-                        "role": "system",
-                        "content": this.state.downloadProgress.join('')
-                    }]
-                })
+                message = this.state.downloadProgress.join('')
             }
         }
+
+        // Set content
+        this.setState({
+            history: [...this.state.history, {
+                "role": "system",
+                "content": message
+            }],
+        })
+        // Add to DB
+        this.db.newMessage(message, "system", chatId)
+
         // After each request set default values
         this.setState({
             downloadProgress: [],
             isRequesting: false
         })
+        
     };
 
     render() {
         return (
             <SafeAreaView className="flex-1 bg-slate-800">
+                
                 <StatusBar />
-                {/* <LinearGradient className="absolute h-full w-full" start={[-0.3, 0.2]} end={[0.5, 0.8]} colors={['rgba(15,23,42,0.1)', 'rgba(255,138,92,0.05)']} /> */}
 
                 <Header
                     navigation={this.props.navigation}
