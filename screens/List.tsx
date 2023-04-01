@@ -25,11 +25,14 @@ interface State {
 
 class ListScreen extends Component<Props, State> {
 
-    db: any
+    db: DB
     data: ListItem[]
 
     constructor(props: Props) {
         super(props)
+        this.state = {
+            data: []
+        }
     }
 
     async dataInit() {
@@ -53,18 +56,18 @@ class ListScreen extends Component<Props, State> {
         this.dataInit();
     };
 
-    showAlert = (id: string|number) => {
+    showAlert = (id: string | number) => {
         Alert.alert(
-            'Подтверждение удаления', // Заголовок
-            'Вы уверены, что хотите удалить этот элемент?', // Сообщение
+            'Confirmation of deletion',
+            'Are you sure you want to delete this chat?',
             [
                 {
-                    text: 'Отмена',
-                    onPress: () => console.log('Отмена удаления'),
+                    text: 'Cancel',
+                    onPress: () => console.log('Deletion cancelled'),
                     style: 'cancel',
                 },
                 {
-                    text: 'Удалить',
+                    text: 'Delete',
                     onPress: () => {
                         this.db.removeChat(id)
                         this.dataInit()
@@ -77,9 +80,6 @@ class ListScreen extends Component<Props, State> {
     };
 
     renderItem = ({ item }: { item: ListItem }) => (
-        // <Pressable onPress={() => console.log(`Pressed ${item.title}`)}>
-        //     <Text>{item.title}</Text>
-        // </Pressable>
         <View className="flex flex-row justify-start px-5 py-1">
             <Pressable
                 onPress={() => {
@@ -99,6 +99,11 @@ class ListScreen extends Component<Props, State> {
                 <Header
                     navigation={this.props.navigation}
                 />
+                {!this.data?.length &&
+                    <Text className="self-center my-4 px-4 py-3 text-white rounded-3xl bg-white/10">
+                        History is empty
+                    </Text>
+                }
                 <FlatList
                     className="pt-2 pb-7"
                     data={this.data}
@@ -114,7 +119,7 @@ class ListScreen extends Component<Props, State> {
                 >
                     <View className="max-w-[190px] w-full flex flex-row items-center justify-center gap-x-2 my-2 px-5 py-3 rounded-3xl bg-teal-500">
                         <Text className="font-medium text-white">Start new chat</Text>
-                        <Ionicons name="ios-create" size={18} color="white" />
+                        <Ionicons name="ios-create" size={22} color="white" />
                     </View>
                 </Pressable>
             </SafeAreaView>

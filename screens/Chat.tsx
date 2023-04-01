@@ -51,7 +51,6 @@ class ChatScreen extends Component<Props, State> {
         DeviceEventEmitter.addListener('chat', (newState) => {
             this.setState(newState)
         });
-        this.dataInit()
     }
 
     async dataInit() {
@@ -62,9 +61,13 @@ class ChatScreen extends Component<Props, State> {
             history: messages
         })
     }
+    
+    componentDidMount() {
+        this.dataInit()
+    }
 
     componentWillUnmount() {
-        this.stopResponse
+        this.stopResponse()
     }
 
     OnDownloadProgress = (data: any) => {
@@ -119,9 +122,9 @@ class ChatScreen extends Component<Props, State> {
                 "content": prompt
             }
         ]
-        let chatId = await this.db.newChat(prompt)
+        let chatId = await this.db.newChat(prompt.slice(0, 50) + '...')
         this.db.newMessage(prompt, "user", chatId)
-        
+       
         // Set to state
         this.setState({ history: history })
         // Request data
@@ -149,23 +152,23 @@ class ChatScreen extends Component<Props, State> {
                 signal: this.signal
             })
             // Set full response content
+            this.db.newMessage(response.data, "system", chatId)
             this.setState({
                 history: [...this.state.history, {
                     "role": "system",
                     "content": response.data
                 }],
             })
-            this.db.newMessage(response.data, "system", global.currentChat)
         } catch (error) {
             // On error setup exising download progress
             if (this.state.downloadProgress.length > 0) {
+                this.db.newMessage(this.state.downloadProgress.join(''), "system", chatId)
                 this.setState({
                     history: [...this.state.history, {
                         "role": "system",
                         "content": this.state.downloadProgress.join('')
                     }]
                 })
-                this.db.newMessage(this.state.downloadProgress.join(''), "system", global.currentChat)
             }
         }
         // After each request set default values

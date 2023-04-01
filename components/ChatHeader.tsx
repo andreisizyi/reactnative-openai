@@ -54,7 +54,7 @@ class HeaderChat extends Component<Props, State> {
                 source={require('../assets/icon.png')}
             /> */}
           <View className="flex flex-column">
-            <Text className="text-base text-white">{title} {global.currentChat}</Text>
+            <Text className="text-base text-white">{title}</Text>
           </View>
         </View>
         {/* <Pressable

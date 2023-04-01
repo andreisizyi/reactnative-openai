@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { NavigationContainer, DefaultTheme } from '@react-navigation/native';
+import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { View } from 'react-native'
 
@@ -19,17 +19,6 @@ import DB from './utils/helpers/DB'
 SplashScreen.preventAutoHideAsync()
 
 const Stack = createNativeStackNavigator();
-
-const navTheme = {
-  ...DefaultTheme,
-  colors: {
-    ...DefaultTheme.colors,
-    background: 'black',
-    card: 'black',
-    notification: 'black',
-    primary: 'black',
-  },
-};
 
 interface AppState {
   appIsReady: number
@@ -65,7 +54,6 @@ class App extends Component<{}, AppState> {
   }
 
   render() {
-    console.log(navTheme);
     return (
       <View className="flex-1 bg-teal-700">
         <NavigationContainer>
