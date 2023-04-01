@@ -5,7 +5,7 @@ import { Image, Text, View, Pressable } from 'react-native';
 import Ionicons from '@expo/vector-icons/Ionicons';
 
 // Components
-import Menu from './ChatHeaderParts/Menu';
+import Menu from './ListHeaderParts/Menu';
 
 type Props = {
   navigation: any;

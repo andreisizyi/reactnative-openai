@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { StatusBar, SafeAreaView, Text, View, Pressable, FlatList, Alert } from 'react-native'
+import { DeviceEventEmitter, StatusBar, SafeAreaView, Text, View, Pressable, FlatList, Alert } from 'react-native'
 import Ionicons from '@expo/vector-icons/Ionicons';
 
 // Helpers
@@ -33,6 +33,11 @@ class ListScreen extends Component<Props, State> {
         this.state = {
             data: []
         }
+
+        DeviceEventEmitter.addListener('deleteAll', () => {
+            this.db.removeAllChats()
+            this.dataInit();
+        });
     }
 
     async dataInit() {
@@ -44,6 +49,7 @@ class ListScreen extends Component<Props, State> {
             data: chats
         })
     }
+
     componentDidMount() {
         this.props.navigation.addListener('focus', this.onScreenFocus);
     }

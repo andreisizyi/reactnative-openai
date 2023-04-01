@@ -15,7 +15,7 @@ class Menu extends Component<Props> {
   }
 
   clearHistory = () => {
-    DeviceEventEmitter.emit('chat', { history: [] });
+    DeviceEventEmitter.emit('deleteAll');
     this.props.setUpper({ menuOpen: false });
   };
 

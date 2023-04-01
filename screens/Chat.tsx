@@ -48,9 +48,9 @@ class ChatScreen extends Component<Props, State> {
         }
         this.abortControl = new AbortController()
         this.signal = this.abortControl.signal
-        DeviceEventEmitter.addListener('chat', (newState) => {
-            this.setState(newState)
-        });
+        // DeviceEventEmitter.addListener('chat', (newState) => {
+        //     this.setState(newState)
+        // });
     }
 
     async dataInit() {
@@ -122,7 +122,7 @@ class ChatScreen extends Component<Props, State> {
                 "content": prompt
             }
         ]
-        let chatId = await this.db.newChat(prompt.slice(0, 50) + '...')
+        let chatId = await this.db.newChat(prompt.slice(0, 100))
         this.db.newMessage(prompt, "user", chatId)
        
         // Set to state

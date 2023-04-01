@@ -34,7 +34,20 @@ class DB {
   }
 
   private initDB(): void {
-    this.connection = SQLite.openDatabase('TrueDataBase9.db');
+    this.connection = SQLite.openDatabase('TrueDataBase11.db');
+
+    // Adding foreign key to messages table
+    this.connection.transaction((tx) => {
+      tx.executeSql(
+        `ALTER TABLE messages ADD FOREIGN KEY(chatId) REFERENCES chats(id) ON DELETE CASCADE;`,
+        [],
+        () => console.log('Foreign key added successfully'),
+        (_, error) => {
+          console.log('Error while adding foreign key:', error);
+          return true;
+        },
+      );
+    });
 
     // Creating tables if not exists
     const createTableQueries = [
@@ -60,7 +73,7 @@ class DB {
         tx.executeSql(
           query,
           [],
-          () => console.log(`Table created successfully`),
+          () => console.log(`Table created successfully or exists`),
           (_, error) => {
             console.log('Error while creating the table:', error);
             return true;
@@ -145,18 +158,18 @@ class DB {
   removeChat(id: number): Promise<boolean> {
     return new Promise((resolve) => {
       this.connection.transaction((tx) => {
-        tx.executeSql(
-          `DELETE FROM messages WHERE chatId = ?`,
-          [id],
-          () => {
-            resolve(true);
-            console.log('Messages deleted');
-          },
-          (_, error) => {
-            resolve(false);
-            return true;
-          },
-        );
+        // tx.executeSql(
+        //   `DELETE FROM messages WHERE chatId = ?`,
+        //   [id],
+        //   () => {
+        //     resolve(true);
+        //     console.log('Messages deleted');
+        //   },
+        //   (_, error) => {
+        //     resolve(false);
+        //     return true;
+        //   },
+        // ); // Not need delete messages becouse foreign keys on chat id
         tx.executeSql(
           `DELETE FROM chats WHERE id = ?`,
           [id],
@@ -172,6 +185,26 @@ class DB {
       });
     });
   }
+
+  removeAllChats(): Promise<boolean> {
+    return new Promise((resolve) => {
+      this.connection.transaction((tx) => {
+        tx.executeSql(
+          `DELETE FROM chats`,
+          null,
+          () => {
+            resolve(true);
+            console.log('All chats with messages deleted');
+          },
+          (_, error) => {
+            resolve(false);
+            return true;
+          },
+        );
+      });
+    });
+  }
+  
 }
 
 export default DB;
