@@ -1,5 +1,6 @@
 {
   "expo": {
+    "privacy": "qwerty1234567",
     "name": "aiapiclient",
     "slug": "aiapiclient",
     "version": "1.0.0",

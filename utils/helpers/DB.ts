@@ -141,7 +141,7 @@ class DB {
     return new Promise((resolve, reject) => {
       this.connection.transaction((tx) => {
         tx.executeSql(
-          'SELECT * FROM chats',
+          'SELECT * FROM chats ORDER BY id DESC',
           [],
           (_, results) => {
             resolve(results.rows._array as Chat[]);
