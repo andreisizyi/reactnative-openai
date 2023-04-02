@@ -27,7 +27,7 @@ interface State {
 class ListScreen extends Component<Props, State> {
 
     private db: DB
-
+    private deleteAllListener: any
     constructor(props: Props) {
         super(props)
 
@@ -35,29 +35,28 @@ class ListScreen extends Component<Props, State> {
             data: []
         }
         
-        DeviceEventEmitter.addListener('deleteAll', () => {
+        this.deleteAllListener = DeviceEventEmitter.addListener('deleteAll', () => {
             Alert.alert(
-                'Confirmation of deletion',
-                'Are you sure you want to delete all chats history?',
-                [
-                    {
-                        text: 'Cancel',
-                        onPress: () => console.log('Deletion cancelled'),
-                        style: 'cancel',
-                    },
-                    {
-                        text: 'Delete',
-                        onPress: () => {
-                            this.db.removeAllChats()
-                            this.dataInit();
-                        },
-                        style: 'destructive',
-                    },
-                ],
-                { cancelable: false }
+              'Confirmation of deletion',
+              'Are you sure you want to delete all chats history?',
+              [
+                {
+                  text: 'Cancel',
+                  onPress: () => console.log('Deletion cancelled'),
+                  style: 'cancel',
+                },
+                {
+                  text: 'Delete',
+                  onPress: () => {
+                    this.db.removeAllChats()
+                    this.dataInit();
+                  },
+                  style: 'destructive',
+                },
+              ],
+              { cancelable: false }
             );
-            
-        });
+          });
     }
 
     async dataInit() {
@@ -73,6 +72,7 @@ class ListScreen extends Component<Props, State> {
 
     componentWillUnmount() {
         this.props.navigation.removeListener('focus', this.onScreenFocus);
+        this.deleteAllListener.remove();
     }
 
     onScreenFocus = () => {

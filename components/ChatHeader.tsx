@@ -1,12 +1,13 @@
 import React, { Component } from 'react';
 import { Text, View, Pressable } from 'react-native';
+import { NavigationProp } from '@react-navigation/native';
 
 // Fonts
 import Ionicons from '@expo/vector-icons/Ionicons';
 
 type Props = {
   history: { content: string }[],
-  navigation: any;
+  navigation: NavigationProp<Record<string, object>>;
 };
 
 type State = {

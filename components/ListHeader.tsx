@@ -52,7 +52,11 @@ class ListHeader extends Component<Props, State> {
           <Ionicons name="ellipsis-vertical" size={22} color="white" />
         </Pressable>
       </View>,
-      <Menu key="header-menu" menuOpen={this.state.menuOpen} setUpper={this.setUpper} />,
+      <Menu key="header-menu"
+        menuOpen={this.state.menuOpen}
+        setUpper={this.setUpper}
+        navigation={this.props.navigation}
+        />,
     ];
   }
 }
