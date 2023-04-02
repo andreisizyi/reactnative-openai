@@ -34,7 +34,7 @@ class DB {
   }
 
   private initDB(): void {
-    this.connection = SQLite.openDatabase('TrueDataBase11.db');
+    this.connection = SQLite.openDatabase('DataBaseAI.db');
 
     // Adding foreign key to messages table
     this.connection.transaction((tx) => {
@@ -198,6 +198,56 @@ class DB {
           },
           (_, error) => {
             resolve(false);
+            return true;
+          },
+        );
+      });
+    });
+  }
+
+  saveApiKey(apiKey: string): Promise<boolean> {
+    return new Promise((resolve, reject) => {
+      if (!apiKey) {
+        console.log('Empty API key');
+        resolve(false);
+        return;
+      }
+      this.connection.transaction((tx) => {
+        tx.executeSql(
+          'INSERT OR REPLACE INTO options (name, value) VALUES (?, ?)',
+          ['api_key', apiKey],
+          (_, result) => {
+            console.log('API key saved successfully');
+            resolve(true);
+          },
+          (_, error) => {
+            console.log('Error while saving API key:', error);
+            resolve(false);
+            return true;
+          },
+        );
+      });
+    });
+  }
+
+  async getApiKey(): Promise<string | null> {
+    return new Promise((resolve, reject) => {
+      this.connection.transaction((tx) => {
+        tx.executeSql(
+          'SELECT value FROM options WHERE name = ?',
+          ['api_key'],
+          (_, results) => {
+            console.log(results.rows.item(0))
+            const row = results.rows.item(0);
+            if (row) {
+              resolve(row.value);
+            } else {
+              resolve(null);
+            }
+          },
+          (_, error) => {
+            console.log('Error while getting API key:', error);
+            resolve(null);
             return true;
           },
         );

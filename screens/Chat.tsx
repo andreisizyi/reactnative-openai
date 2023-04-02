@@ -12,8 +12,6 @@ import Prompt from '../components/ChatPrompt'
 import RateLimeter from '../utils/helpers/RateLimiter'
 import DB from '../utils/helpers/DB'
 
-const token: string = "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"
-
 interface Props {}
 
 interface State {
@@ -36,6 +34,7 @@ class ChatScreen extends Component<Props, State> {
     private db: DB
     private abortControl: AbortController
     private signal: AbortSignal
+    private token: string
 
     constructor(props: Props) {
         super(props)
@@ -51,6 +50,8 @@ class ChatScreen extends Component<Props, State> {
     async dataInit() {
         this.db = DB.getInstance()
         const messages = await this.db.getMessagesOfChat(global.currentChat)
+        this.token = await this.db.getApiKey()
+        console.log(this.token);
         console.log(messages);
         this.setState({
             history: messages
@@ -138,7 +139,7 @@ class ChatScreen extends Component<Props, State> {
                 url: 'https://api.openai.com/v1/chat/completions',
                 headers: {
                     'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`
+                    'Authorization': `Bearer ${this.token}`
                 },
                 data: data,
                 responseType: 'text',

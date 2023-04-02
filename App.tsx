@@ -11,6 +11,7 @@ import * as SplashScreen from 'expo-splash-screen'
 // Screens
 import ChatScreen from './screens/Chat'
 import ListScreen from './screens/List'
+import SettingsScreen from './screens/Settings'
 
 // Helpers
 import DB from './utils/helpers/DB'
@@ -64,8 +65,10 @@ class App extends Component<{}, AppState> {
             }}
             
           >
+            <Stack.Screen name="Settings" component={SettingsScreen} />
             <Stack.Screen name="List" component={ListScreen} />
             <Stack.Screen name="Chat" component={ChatScreen} />
+            
           </Stack.Navigator>
         </NavigationContainer>
       </View>
