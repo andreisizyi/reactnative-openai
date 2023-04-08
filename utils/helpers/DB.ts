@@ -34,22 +34,40 @@ class DB {
   }
 
   private initDB(): void {
-    this.connection = SQLite.openDatabase('DataBaseAI.db');
+    this.connection = SQLite.openDatabase('DataBaseAI11111211.db');
 
-    // Adding foreign key to messages table
-    this.connection.transaction((tx) => {
-      tx.executeSql(
-        `ALTER TABLE messages ADD FOREIGN KEY(chatId) REFERENCES chats(id) ON DELETE CASCADE;`,
-        [],
-        () => console.log('Foreign key added successfully'),
-        (_, error) => {
-          console.log('Error while adding foreign key:', error);
-          return true;
-        },
-      );
-    });
+    // this.connection.transaction((tx) => {
+    //   tx.executeSql(
+    //     `PRAGMA foreign_key_list(options);`, // включаем поддержку внешних ключей
+    //     [],
+    //     () => console.log('Foreign key support enabled'),
+    //     (_, error) => {
+    //       console.log('Error while enabling foreign key support:', error);
+    //       return true;
+    //     },
+    //   );
+    // });
 
     // Creating tables if not exists
+    // const createTableQueries = [
+    //   `CREATE TABLE IF NOT EXISTS chats (
+    //     id INTEGER PRIMARY KEY AUTOINCREMENT,
+    //     name TEXT
+    //   );`,
+    //   `CREATE TABLE IF NOT EXISTS messages (
+    //     id INTEGER PRIMARY KEY AUTOINCREMENT,
+    //     chatId INTEGER,
+    //     content TEXT,
+    //     role TEXT,
+    //     FOREIGN KEY(chatId) REFERENCES chats(id) ON DELETE CASCADE
+    //   );`,
+    //   `CREATE TABLE IF NOT EXISTS options (
+    //     id INTEGER PRIMARY KEY AUTOINCREMENT,
+    //     name INTEGER,
+    //     value TEXT
+    //   );`,
+    // ];
+    // In test expo app dont support FOREIGN KEY ON DELETE CASCADE, then don't use this
     const createTableQueries = [
       `CREATE TABLE IF NOT EXISTS chats (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -158,24 +176,24 @@ class DB {
   removeChat(id: number): Promise<boolean> {
     return new Promise((resolve) => {
       this.connection.transaction((tx) => {
-        // tx.executeSql(
-        //   `DELETE FROM messages WHERE chatId = ?`,
-        //   [id],
-        //   () => {
-        //     resolve(true);
-        //     console.log('Messages deleted');
-        //   },
-        //   (_, error) => {
-        //     resolve(false);
-        //     return true;
-        //   },
-        // ); // Not need delete messages becouse foreign keys on chat id
+        tx.executeSql(
+          `DELETE FROM messages WHERE chatId = ?`,
+          [id],
+          () => {
+            resolve(true);
+            console.log('Messages deleted');
+          },
+          (_, error) => {
+            resolve(false);
+            return true;
+          },
+        );
         tx.executeSql(
           `DELETE FROM chats WHERE id = ?`,
           [id],
           () => {
             resolve(true);
-            console.log('Chat with messages deleted');
+            console.log('Chat deleted');
           },
           (_, error) => {
             resolve(false);

@@ -9,7 +9,7 @@ import DB from '../utils/helpers/DB'
 // Components
 import Header from '../components/ListHeader'
 
-const token: string = "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"
+// const token: string = "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"
 
 interface Props {
     navigation: NavigationProp<Record<string, object>>;
@@ -133,7 +133,7 @@ class ListScreen extends Component<Props, State> {
                     data={this.state.data}
                     renderItem={this.renderItem}
                     keyExtractor={(item) => item.id.toString() as string}
-                    contentContainerStyle={{ paddingBottom: '2.5rem', paddingTop: '0.5rem' }}
+                    contentContainerStyle={{ paddingBottom: 96, paddingTop: 8 }}
                 />
                 <Pressable
                     className="absolute bottom-0.5 w-full flex flex-row justify-center items-center"
