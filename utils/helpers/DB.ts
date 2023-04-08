@@ -34,7 +34,7 @@ class DB {
   }
 
   private initDB(): void {
-    this.connection = SQLite.openDatabase('DataBaseAI11111211.db');
+    this.connection = SQLite.openDatabase('DataBaseAI.db');
 
     // this.connection.transaction((tx) => {
     //   tx.executeSql(
