@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { DeviceEventEmitter, StatusBar, SafeAreaView, Text, View, Pressable, FlatList, Alert } from 'react-native'
+import { DeviceEventEmitter, StatusBar, SafeAreaView, Text, View, Pressable, FlatList, Alert, Vibration } from 'react-native'
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { NavigationProp } from '@react-navigation/native';
 
@@ -61,25 +61,26 @@ class ListScreen extends Component<Props, State> {
 
     async dataInit() {
         this.db = DB.getInstance()
-        const chats = await this.db.getChats();
+        const chats = await this.db.getChats()
         console.log(chats)
         this.setState({ data: chats })
     }
 
     componentDidMount() {
-        this.props.navigation.addListener('focus', this.onScreenFocus);
+        this.props.navigation.addListener('focus', this.onScreenFocus)
     }
 
     componentWillUnmount() {
-        this.props.navigation.removeListener('focus', this.onScreenFocus);
-        this.deleteAllListener.remove();
+        this.props.navigation.removeListener('focus', this.onScreenFocus)
+        this.deleteAllListener.remove()
     }
 
     onScreenFocus = () => {
-        this.dataInit();
+        this.dataInit()
     };
 
     showAlert = (id: number) => {
+        Vibration.vibrate(100)
         Alert.alert(
             'Confirmation of deletion',
             'Are you sure you want to delete this chat?',
@@ -129,10 +130,10 @@ class ListScreen extends Component<Props, State> {
                     </Text>
                 }
                 <FlatList
-                    className="pt-2 pb-7"
                     data={this.state.data}
                     renderItem={this.renderItem}
                     keyExtractor={(item) => item.id.toString() as string}
+                    contentContainerStyle={{ paddingBottom: '2.5rem', paddingTop: '0.5rem' }}
                 />
                 <Pressable
                     className="absolute bottom-0.5 w-full flex flex-row justify-center items-center"

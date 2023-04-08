@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { StatusBar, SafeAreaView } from 'react-native'
+import { StatusBar, SafeAreaView, Alert } from 'react-native'
 import axios, { AxiosResponse } from 'axios'
 import { NavigationProp } from '@react-navigation/native';
 
@@ -149,21 +149,29 @@ class ChatScreen extends Component<Props, State> {
             })
             message = response.data
         } catch (error) {
+            if  (error.code !== 'ERR_CANCELED') {
+                Alert.alert(
+                    'API message',
+                    error.message
+                );
+            }
             // On error setup exising download progress
             if (this.state.downloadProgress.length > 0) {
                 message = this.state.downloadProgress.join('')
             }
         }
 
-        // Set content
-        this.setState({
-            history: [...this.state.history, {
-                "role": "system",
-                "content": message
-            }],
-        })
-        // Add to DB
-        this.db.newMessage(message, "system", chatId)
+        if (message) {
+            // Set content
+            this.setState({
+                history: [...this.state.history, {
+                    "role": "system",
+                    "content": message
+                }],
+            })
+            // Add to DB
+            this.db.newMessage(message, "system", chatId)
+        }
 
         // After each request set default values
         this.setState({
