@@ -2,6 +2,8 @@ import React, { Component } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { View } from 'react-native'
+import 'expo-dev-client'
+import { BannerAd, BannerAdSize, InterstitialAd, AdEventType, TestIds } from 'react-native-google-mobile-ads';
 
 // Fonts
 import useFonts from './resources/fonts'
@@ -17,6 +19,25 @@ import DB from './utils/helpers/DB'
 
 // SplashScreen
 SplashScreen.preventAutoHideAsync()
+
+const interstitial = InterstitialAd.createForAdRequest(TestIds.INTERSTITIAL, {
+  requestNonPersonalizedAdsOnly: true,
+  keywords: ['fashion', 'clothing'],
+});
+// Add event listeners for interstitial ad events
+interstitial.addAdEventListener(AdEventType.LOADED, () => {
+  console.log('Interstitial ad loaded');
+  interstitial.show();
+});
+interstitial.addAdEventListener(AdEventType.CLOSED, () => {
+  console.log('Interstitial ad closed');
+});
+interstitial.addAdEventListener(AdEventType.ERROR, (error) => {
+  console.warn('Interstitial ad error:', error);
+});
+
+// Load the interstitial ad
+interstitial.load();
 
 const Stack = createNativeStackNavigator();
 
@@ -61,12 +82,16 @@ class App extends Component<{}, AppState> {
     }
     // Onload methods
     this.preloading()
+
+   
+    
   }
 
   render() {
     if (this.state.appIsReady === 0) {
       return null;
     }
+    
     return (
       <View className="flex-1 bg-teal-700">
         <NavigationContainer>
@@ -83,6 +108,13 @@ class App extends Component<{}, AppState> {
             
           </Stack.Navigator>
         </NavigationContainer>
+        <BannerAd
+          unitId={TestIds.BANNER}
+          size={BannerAdSize.FULL_BANNER}
+          requestOptions={{
+            requestNonPersonalizedAdsOnly: true,
+          }}
+        />
       </View>
     )
   }
