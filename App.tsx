@@ -20,7 +20,13 @@ import DB from './utils/helpers/DB'
 // SplashScreen
 SplashScreen.preventAutoHideAsync()
 
-const interstitial = InterstitialAd.createForAdRequest(TestIds.INTERSTITIAL, {
+// const adUnitIdBottom = __DEV__ ? TestIds.BANNER : 'ca-app-pub-5784785707723803/3476183687';
+// const adUnitIdFullStart = __DEV__ ? TestIds.INTERSTITIAL : 'ca-app-pub-5784785707723803/3476183687';
+
+const adUnitIdBottom = TestIds.BANNER;
+const adUnitIdFullStart = TestIds.INTERSTITIAL;
+
+const interstitial = InterstitialAd.createForAdRequest(adUnitIdFullStart, {
   requestNonPersonalizedAdsOnly: true,
   keywords: ['fashion', 'clothing'],
 });
@@ -109,7 +115,7 @@ class App extends Component<{}, AppState> {
           </Stack.Navigator>
         </NavigationContainer>
         <BannerAd
-          unitId={TestIds.BANNER}
+          unitId={adUnitIdBottom}
           size={BannerAdSize.FULL_BANNER}
           requestOptions={{
             requestNonPersonalizedAdsOnly: true,
