@@ -6,4 +6,5 @@ npx expo start --dev-client
 npx eas build -p android --profile production
 
 Install build development to android to start work
-  
+
+https://ninza7.medium.com/monetize-your-react-native-expo-apps-with-google-admob-f12950a233a4
