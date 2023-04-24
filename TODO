@@ -1,1 +1,6 @@
-1. Monetize https://www.youtube.com/watch?v=myDDG54OvkE
+1. Create repo with all comands
+
+npx eas-cli build --profile development
+npx expo start --dev-client
+npx eas build -p android --profile production 
+  
