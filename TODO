@@ -3,5 +3,7 @@
 npx eas build --profile development --platform android 
 npx eas-cli build --profile development
 npx expo start --dev-client
-npx eas build -p android --profile production 
+npx eas build -p android --profile production
+
+Install build development to android to start work
   
