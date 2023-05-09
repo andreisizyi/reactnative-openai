@@ -9,8 +9,6 @@ import DB from '../utils/helpers/DB'
 // Components
 import Header from '../components/ListHeader'
 
-// const token: string = "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"
-
 interface Props {
     navigation: NavigationProp<Record<string, object>>;
 }
